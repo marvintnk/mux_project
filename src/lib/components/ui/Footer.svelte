@@ -27,7 +27,7 @@
         <button>
             <span class="indicator">
                 <BookHeart size="1.2em"/>
-                <span class="badge badge-xs shadow-sm indicator-item">
+                <span class="badge badge-accent badge-xs shadow-sm indicator-item">
                     3
                 </span>
             </span>

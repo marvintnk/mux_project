@@ -47,7 +47,7 @@
                         </div>
                     </div>
                     {#if profileData}
-                        <span class="badge badge-sm  shadow-sm indicator-item">
+                        <span class="badge badge-accent badge-sm shadow-sm indicator-item">
                             4
                         </span>
                     {/if}
@@ -75,14 +75,14 @@
                             <a>
                                 <Store size={12}/>
                                 Meine Angebote
-                                <span class="badge">1</span>
+                                <span class="badge badge-accent badge-xs mr-2">1</span>
                             </a>
                         </li>
                         <li>
                             <a>
                                 <BookHeart size={12}/>
                                 Meine Favoriten
-                                <span class="badge">3</span>
+                                <span class="badge badge-accent badge-xs mr-2">3</span>
                             </a>
                         </li>
                         <li class="border-1"></li>
