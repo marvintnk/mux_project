@@ -13,7 +13,7 @@
 <footer class="footer sm:footer-horizontal footer-center bg-base-300 text-base-content p-4 {profileData ? 'pb-18' : ''} md:pb-4">
     <aside>
         <p class="text-sm"><strong>Swapbox</strong> - Ein Projekt der <nobr>Technischen Hochschule Brandenburg</nobr></p>
-        <p class="text-xs">Copyright © {new Date().getFullYear()} - All right reserved.</p>
+        <p class="text-xs">Copyright © {new Date().getFullYear()} - All rights reserved</p>
     </aside>
 </footer>
 
