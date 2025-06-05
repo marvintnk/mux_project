@@ -15,10 +15,8 @@
     ];
 
     onMount(() => {
-        const url = new URL(document.URL);
-        if(hideSearchBarAt.includes(url.pathname)) {
-            isSearchBarHidden = true;
-        }
+        const path = new URL(document.URL).pathname;
+        isSearchBarHidden = hideSearchBarAt.filter(item => path.startsWith(item)).length > 0;
     });
 </script>
 

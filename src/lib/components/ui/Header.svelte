@@ -20,7 +20,7 @@
             <a class="btn btn-ghost text-xl">Swapbox</a>
         </div>
 
-        <div class="flex-3 justify-center invisible {hideSearchBar ? '' : 'md:visible'}">
+        <div class="flex-3 justify-center hidden {hideSearchBar ? '' : 'md:block'}">
             <div class="flex place-content-center">
                 <div class="mt-1 input input-sm input-bordered min-w-3/4">
                     <div class="mr-1">
@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        <div class="flex-1 justify-end invisible md:visible">
+        <div class="flex-1 justify-end hidden md:block">
             <div class="flex place-content-end dropdown dropdown-end mr-2">
                 <div class="indicator">
                     <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
@@ -106,7 +106,7 @@
     </div>
 </div>
 
-<div class="visible md:invisible mx-4 mt-1">
+<div class="{hideSearchBar ? 'hidden' : 'visible'} md:hidden mx-4 mt-1">
     <div class="flex place-content-center">
         <div class="mt-1 input input-sm input-bordered min-w-3/4">
             <div class="mr-1">
