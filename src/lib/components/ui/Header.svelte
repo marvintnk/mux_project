@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        <div class="flex-1 justify-end">
+        <div class="flex-1 justify-end invisible md:visible">
             <div class="flex place-content-end dropdown dropdown-end mr-2">
                 <div class="indicator">
                     <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">

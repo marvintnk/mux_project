@@ -1,10 +1,10 @@
 <script>
     import Footer from "../lib/components/ui/Footer.svelte";
-
-    let { children } = $props();
     import "../app.css";
     import Header from "../lib/components/ui/Header.svelte";
     import {onMount} from "svelte";
+
+    let { children } = $props();
 
     let profileData = 1;
     let isSearchBarHidden = $state(false);
@@ -23,5 +23,5 @@
 </script>
 
 <Header profileData={profileData} hideSearchBar={isSearchBarHidden} />
- {@render children()}
+{@render children()}
 <Footer profileData={profileData} />
