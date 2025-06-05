@@ -11,6 +11,7 @@
     } from "@lucide/svelte";
 
     export let profileData = null;
+    export let hideSearchBar = false;
 </script>
 
 <div class="navbar bg-base-100 shadow-sm">
@@ -19,7 +20,7 @@
             <a class="btn btn-ghost text-xl">Swapbox</a>
         </div>
 
-        <div class="flex-3 justify-center invisible md:visible">
+        <div class="flex-3 justify-center invisible {hideSearchBar ? '' : 'md:visible'}">
             <div class="flex place-content-center">
                 <div class="mt-1 input input-sm input-bordered min-w-3/4">
                     <div class="mr-1">
