@@ -25,7 +25,10 @@
         <p class="font-bold mt-1">{title}</p>
 
         <div class="flex justify-end">
-            {likes}
+            {#if likes > 0}
+                {likes}
+            {/if}
+
             <div class="ml-1 my-auto">
                 {#if hasLiked}
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="#eb4034" stroke="#eb4034" stroke-width="2" stroke-linecap="round">
