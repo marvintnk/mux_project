@@ -4,27 +4,22 @@
         CirclePlus,
         House,
         MessageCircleMore,
-        CircleUser
+        CircleUser,
+        ContactRound
     } from "@lucide/svelte";
 
     export let profileData = null;
 </script>
 
-<footer class="footer sm:footer-horizontal footer-center bg-base-300 text-base-content p-4 {profileData ? 'pb-18' : ''} md:pb-4">
-    <aside>
-        <p class="text-sm"><strong>Swapbox</strong> - Ein Projekt der <nobr>Technischen Hochschule Brandenburg</nobr></p>
-        <p class="text-xs">Copyright © {new Date().getFullYear()} - All rights reserved</p>
-    </aside>
-</footer>
+<div class="mt-15"></div>
+<div class="dock dock-sm">
+    <a href="/">
+        <House size="1.2em"/>
+        <span class="dock-label">Start</span>
+    </a>
 
-{#if profileData}
-    <div class="dock dock-sm visible md:invisible">
-        <button>
-            <House size="1.2em"/>
-            <span class="dock-label">Start</span>
-        </button>
-
-        <button>
+    {#if profileData}
+        <a href="/favorites">
             <span class="indicator">
                 <BookHeart size="1.2em"/>
                 <span class="badge badge-accent badge-xs shadow-sm indicator-item">
@@ -33,21 +28,31 @@
             </span>
 
             <span class="dock-label">Favoriten</span>
-        </button>
+        </a>
 
-        <button>
+        <a href="/add">
             <CirclePlus size="1.2em"/>
             <span class="dock-label">Hinzufügen</span>
-        </button>
+        </a>
 
-        <button>
+        <a href="/chat">
             <MessageCircleMore size="1.2em"/>
             <span class="dock-label">Chat</span>
-        </button>
+        </a>
 
-        <button>
+        <a href="/profile">
             <CircleUser size="1.2em"/>
             <span class="dock-label">Profil</span>
-        </button>
-    </div>
-{/if}
+        </a>
+    {:else}
+        <a href="/login">
+            <CircleUser size="1.2em"/>
+            <span class="dock-label">Login</span>
+        </a>
+
+        <a href="/register">
+            <ContactRound size="1.2em"/>
+            <span class="dock-label">Registrieren</span>
+        </a>
+    {/if}
+</div>
