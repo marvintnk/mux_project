@@ -2,6 +2,7 @@
     import {Search} from "@lucide/svelte";
     import CategoryItem from "$lib/components/ui/CategoryItem.svelte";
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
+    import SearchBar from "$lib/components/ui/SearchBar.svelte";
 
     let mockupDataEvents = $state([
         {
@@ -145,12 +146,7 @@
     ]);
 </script>
 
-<div class="flex mt-5">
-    <div class="input w-full mx-4">
-        <Search />
-        <input type="text" placeholder="Suche" />
-    </div>
-</div>
+<SearchBar/>
 
 <p class="text-xl mt-5 ml-2 font-bold">Kategorien</p>
 <div class="flex gap-4 mx-2 mt-2" style="overflow-y: scroll !important;">
