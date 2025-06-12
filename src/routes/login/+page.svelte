@@ -35,8 +35,12 @@
     };
 </script>
 
-<div class="h-screen flex">
-    <div class="mx-auto mt-15">
+<div class="flex flex-col">
+    <div class="mx-auto mt-5">
+        <p class="text-xl font-bold">Willkommen zurück</p>
+    </div>
+
+    <div class="m-auto mt-5">
         <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
             <legend class="fieldset-legend">Login</legend>
 

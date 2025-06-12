@@ -79,8 +79,12 @@
     };
 </script>
 
-<div class="h-screen flex">
-    <div class="mx-auto mt-15">
+<div class="h-screen flex flex-col">
+    <div class="mx-auto mt-5">
+        <p class="text-xl font-bold">Herzlich Willkommen</p>
+    </div>
+
+    <div class="m-auto mt-5">
         <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
             <legend class="fieldset-legend">Registrierung</legend>
 
