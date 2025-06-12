@@ -2,13 +2,12 @@
     import {
         BookHeart,
         CirclePlus,
-        House,
         MessageCircleMore,
         CircleUser,
         ContactRound
     } from "@lucide/svelte";
 
-    export let profileData = null;
+    export let profileData = 1;
 </script>
 
 <div class="mt-15"></div>
