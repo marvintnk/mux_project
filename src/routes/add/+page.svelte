@@ -125,7 +125,7 @@
     </div>
 {/if}
 
-<div class="mx-10 flex">
+<div class="mx-10 mt-5 flex">
     <div class="flex w-full">
         <input type="radio" name="action-type" class="radio mr-2 radio-accent" checked="checked" />
         Ich biete
