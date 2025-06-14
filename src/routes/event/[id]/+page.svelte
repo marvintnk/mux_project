@@ -73,7 +73,7 @@
     </div>
     <textarea class="textarea mt-4 w-full h-32 px-4" placeholder="Es wurde keine Beschreibung angegeben." readonly={true} style="resize: none !important;">{description}</textarea>
     <p class="mt-4 text-2xl font-bold">Angeboten von</p>
-    <a class="flex" href="/profile/0">
+    <div class="flex">
         {#if authorProfilePicture === null}
             <div class="avatar avatar-placeholder mt-1" onclick={() => document.getElementById("fileInput").click()}>
                 <div class="bg-neutral text-neutral-content w-8 rounded-full">
@@ -88,14 +88,14 @@
             </div>
         {/if}
         <p class="ml-2 my-auto text-lg">{author}</p>
-    </a>
+    </div>
     <Rating rating={rating} editable={false} ratingSizeClass="rating-sm"/>
 </div>
 
 <div class="mt-4 flex mx-auto w-2/3 pb-4">
-    <a class="flex btn w-full" href="/chat/0">
+    <div class="flex btn w-full">
         <MessageSquareMore size={20} class="mt-1 mr-1" />
         <p>Frage stellen</p>
-    </a>
+    </div>
 </div>
 
