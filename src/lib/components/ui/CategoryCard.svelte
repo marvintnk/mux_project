@@ -7,6 +7,7 @@
     export let likes;
     export let href = null;
     export let hasLiked = false;
+
     export let isFavoriteItem = false;
     export let clickFunction = null;
 

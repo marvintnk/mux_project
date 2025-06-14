@@ -24,7 +24,7 @@
     ]);
 </script>
 
-<GoBackItem href="/"/>
+<GoBackItem/>
 
 <div class="flex flex-col {idAskDeletion !== null ? 'blur-xs' : ''}">
     <p class="text-2xl font-bold mx-auto">Favoriten</p>

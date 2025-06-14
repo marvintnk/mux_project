@@ -1,6 +1,5 @@
 <script>
-    import GoBackItem from "$lib/components/ui/GoBackItem.svelte";
-    import { OctagonAlert } from "@lucide/svelte";
+    import { OctagonAlert, ChevronLeft } from "@lucide/svelte";
     import Rating from "$lib/components/ui/Rating.svelte";
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
 
@@ -17,45 +16,32 @@
         date: "Mo. 09.06.2025",
         title: "Suche Nachhilfe"
     }]);
-    //let myOffers = $state([]);
+
     let description = $state("");
-
-    const getNewProfilePicture = () => {
-        const element = document.getElementById("fileInput");
-        const files = element.files;
-
-        if(files.length > 0) {
-            const file = files[0];
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function () {
-                if(reader.result.startsWith("data:image/")) {
-                    imageData = reader.result;
-                    // TODO: Upload new profile picture
-                } else {
-                    document.getElementById("modal_invalid_datatype").showModal();
-                }
-            };
-        }
-    }
 </script>
 
-<GoBackItem showLogoutButton={true}/>
-
-<div class="flex">
-    <p class="text-2xl font-bold mx-auto">Mein Profil</p>
+<div class="flex mt-2 border-b border-base-400" style="padding-bottom: 4px !important;">
+    <!-- TODO: Find a way to get the last page the user accessed -->
+    <a class="flex" href="/" style="min-width: 33% !important;">
+        <ChevronLeft />
+        <p class="ml-1">Zurück</p>
+    </a>
+    <!-- Looks weird on long names currently... TODO: Fix later -->
+    <div class="max-w-1/3" style="min-width: 33% !important;">
+        <p class="font-bold text-center">Anzeigen von {name}</p>
+    </div>
 </div>
 
 <div class="mx-2 mt-5">
     <div class="flex">
         {#if imageData === null}
-            <div class="avatar avatar-placeholder" onclick={() => document.getElementById("fileInput").click()}>
+            <div class="avatar avatar-placeholder">
                 <div class="bg-neutral text-neutral-content w-16 rounded-full">
                     <span class="text-2xl">{name[0]}</span>
                 </div>
             </div>
         {:else}
-            <div class="avatar" onclick={() => document.getElementById("fileInput").click()}>
+            <div class="avatar">
                 <div class="w-16 rounded-full ring-2">
                     <img src={imageData} />
                 </div>
@@ -74,8 +60,7 @@
     </div>
 
     <p class="ml-4 text-lg">{email}</p>
-    <textarea class="textarea mt-8 w-full h-32 px-4" placeholder="Meine Beschreibung" style="resize: none !important;">{description}</textarea>
-    <button class="btn btn-accent w-full mt-2">Beschreibung bearbeiten</button>
+    <textarea class="textarea mt-8 w-full h-32 px-4" placeholder="Meine Beschreibung" readonly="true" style="resize: none !important;">{description}</textarea>
 </div>
 
 {#if myOffers.length > 0}
