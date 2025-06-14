@@ -2,6 +2,7 @@
     import { OctagonAlert, ChevronLeft } from "@lucide/svelte";
     import Rating from "$lib/components/ui/Rating.svelte";
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
+    import InvalidImageModal from "$lib/components/ui/InvalidImageModal.svelte";
 
     let imageData = $state(null);
     let name = $state("?");
@@ -48,7 +49,7 @@
             </div>
         {/if}
 
-        <input id="fileInput" type="file" style="display:none;" oninput={() => getNewProfilePicture()} />
+        <input id="fileInput" type="file" style="display:none;" accept="image/png, image/jpeg" oninput={() => getNewProfilePicture()} />
 
         <div class="ml-5">
             <p class="text-xl">{name}</p>
@@ -80,17 +81,4 @@
     </div>
 {/if}
 
-<dialog id="modal_invalid_datatype" class="modal">
-    <div class="modal-box">
-        <div class="flex text-lg font-bold">
-            <OctagonAlert class="my-auto mr-2" color="#eb4034" />
-            Invalider Datentyp hochgeladen.
-        </div>
-        <p class="py-4">Ihr Profilbild konnte nicht aktualisiert werden. Bitte stellen Sie sicher, dass Sie Dateien vom Typ PNG oder JPEG hochladen.</p>
-        <div class="modal-action">
-            <form method="dialog">
-                <button class="btn btn-warning">Schließen</button>
-            </form>
-        </div>
-    </div>
-</dialog>
+<InvalidImageModal/>
