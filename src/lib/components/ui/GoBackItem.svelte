@@ -1,7 +1,7 @@
 <script>
     import { X, LogOut } from "@lucide/svelte";
 
-    export let href;
+    export let href = "/";
     export let showLogoutButton = false;
 </script>
 
