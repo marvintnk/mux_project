@@ -2,29 +2,26 @@
     import {
         BookHeart,
         CirclePlus,
-        House,
         MessageCircleMore,
-        CircleUser
+        CircleUser,
+        ContactRound
     } from "@lucide/svelte";
 
-    export let profileData = null;
+    export let profileData = 1;
 </script>
 
-<footer class="footer sm:footer-horizontal footer-center bg-base-300 text-base-content p-4 {profileData ? 'pb-18' : ''} md:pb-4">
-    <aside>
-        <p class="text-sm"><strong>Swapbox</strong> - Ein Projekt der <nobr>Technischen Hochschule Brandenburg</nobr></p>
-        <p class="text-xs">Copyright © {new Date().getFullYear()} - All rights reserved</p>
-    </aside>
-</footer>
+<div class="mt-15"></div>
+<div class="dock dock-sm">
+    <a href="/">
+        <svg width="19.2" height="19.2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+            <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        </svg>
+        <span class="dock-label font-bold">Start</span>
+    </a>
 
-{#if profileData}
-    <div class="dock dock-sm visible md:invisible">
-        <button>
-            <House size="1.2em"/>
-            <span class="dock-label">Start</span>
-        </button>
-
-        <button>
+    {#if profileData}
+        <a href="/favorites">
             <span class="indicator">
                 <BookHeart size="1.2em"/>
                 <span class="badge badge-accent badge-xs shadow-sm indicator-item">
@@ -33,21 +30,31 @@
             </span>
 
             <span class="dock-label">Favoriten</span>
-        </button>
+        </a>
 
-        <button>
+        <a href="/add">
             <CirclePlus size="1.2em"/>
             <span class="dock-label">Hinzufügen</span>
-        </button>
+        </a>
 
-        <button>
+        <a href="/chat">
             <MessageCircleMore size="1.2em"/>
-            <span class="dock-label">Chat</span>
-        </button>
+            <span class="dock-label font-bold">Chat</span>
+        </a>
 
-        <button>
+        <a href="/profile">
             <CircleUser size="1.2em"/>
-            <span class="dock-label">Profil</span>
-        </button>
-    </div>
-{/if}
+            <span class="dock-label font-bold">Profil</span>
+        </a>
+    {:else}
+        <a href="/login">
+            <CircleUser size="1.2em"/>
+            <span class="dock-label">Login</span>
+        </a>
+
+        <a href="/register">
+            <ContactRound size="1.2em"/>
+            <span class="dock-label">Registrieren</span>
+        </a>
+    {/if}
+</div>
