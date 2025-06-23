@@ -3,6 +3,7 @@
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
     import SearchBar from "$lib/components/ui/SearchBar.svelte";
     import { CATEGORIES } from "$lib/categories.js";
+    import { onMount } from "svelte";
 
     let mockupDataEvents = $state([
         {
@@ -61,7 +62,7 @@
         }
     ]);
 
-    let mockupDataOffers = $state([
+    let allOffers = $state([
         {
             img: null,
             link: "/offer/0",
@@ -144,6 +145,41 @@
             hasLiked: false
         }
     ]);
+
+    let visibleOffers = $state([]);
+    let batchSize = 4;
+    let loading = false;
+
+    function loadInitial() {
+        visibleOffers = allOffers.slice(0, batchSize);
+    }
+
+    function loadMore() {
+        if (loading) return;
+        loading = true;
+
+        setTimeout(() => {
+            const nextLength = visibleOffers.length + batchSize;
+            visibleOffers = allOffers.slice(0, nextLength);
+            loading = false;
+        }, 300); // optional: simuliere Latenz
+    }
+
+    function handleScroll() {
+        const scrollBottom = window.scrollY + window.innerHeight;
+        const docHeight = document.body.offsetHeight;
+
+        if (scrollBottom >= docHeight - 100) {
+            loadMore();
+        }
+    }
+
+    onMount(() => {
+        loadInitial();
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    });
+
 </script>
 
 <SearchBar/>
@@ -161,16 +197,39 @@
 
 <p class="text-xl mt-5 ml-2 font-bold">Nächste Events</p>
 
-<div class="max-h-64 mx-2 gap-4" style="overflow-y: scroll !important;">
-    {#each mockupDataEvents as item}
-        <CategoryCard imageData={item.img} likes={item.likes} location={item.location} title={item.title} date={item.date} href={item.link} hasLiked={item.hasLiked}/>
+<div class="mx-2 flex flex-col gap-4">
+    {#each mockupDataEvents.slice(0, 3) as item}
+        <CategoryCard
+            imageData={item.img}
+            likes={item.likes}
+            location={item.location}
+            title={item.title}
+            date={item.date}
+            href={item.link}
+            hasLiked={item.hasLiked}
+        />
     {/each}
 </div>
+
 
 <p class="text-xl mt-5 ml-2 font-bold">Neuste Anzeigen</p>
 
-<div class="mx-2 gap-4" style="overflow-y: scroll !important;">
-    {#each mockupDataOffers as item}
-        <CategoryCard imageData={item.img} likes={item.likes} location={item.location} title={item.title} date={item.date} href={item.link} hasLiked={item.hasLiked}/>
+<div class="mx-2 flex flex-col gap-4">
+    {#each visibleOffers as item}
+        <CategoryCard
+            imageData={item.img}
+            likes={item.likes}
+            location={item.location}
+            title={item.title}
+            date={item.date}
+            href={item.link}
+            hasLiked={item.hasLiked}
+        />
     {/each}
+
+    {#if loading}
+        <p class="text-center text-gray-400">Lade mehr...</p>
+    {/if}
 </div>
+
+
