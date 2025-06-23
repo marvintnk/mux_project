@@ -25,6 +25,7 @@
     "@lucide/svelte": "^0.511.0",
     "@supabase/supabase-js": "^2.49.10",
     "@sveltejs/kit": "^2.20.7",
-    "canvas-confetti": "^1.9.3"
+    "canvas-confetti": "^1.9.3",
+    "tailwind-scrollbar-hide": "^4.0.0"
   }
 }
