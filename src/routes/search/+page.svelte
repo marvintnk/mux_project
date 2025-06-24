@@ -3,28 +3,52 @@
     import SearchBar from "$lib/components/ui/SearchBar.svelte";
     import { CATEGORIES } from "$lib/categories.js";
     import { onMount } from "svelte";
-    import { swapBoxService } from '$lib/api/swapbox.service.js';
+    import { swapBoxService } from "$lib/api/swapbox.service.js";
 
     let allOffers = $state([]);
     let visibleOffers = $state([]);
     let batchSize = 20;
     let loading = $state(false);
-    let selectedCategory = $state('Alle');
+    let selectedCategory = $state("Alle");
     let currentBatch = $state(1);
-    let dropdownOpen = $state(false); // Neue Variable für Dropdown-Zustand
+    let dropdownOpen = $state(false);
+    let searchQuery = $state("");
 
-    // $derived für reaktive Berechnung der gefilterten Angebote
+    // Korrigierte $derived Definition
     let filteredOffers = $derived(
-        selectedCategory === 'Alle'
-            ? allOffers
-            : allOffers.filter(offer => offer.category === selectedCategory)
+        (() => {
+            // Erst nach Kategorie filtern
+            let filtered =
+                selectedCategory === "Alle"
+                    ? allOffers
+                    : allOffers.filter(
+                          (offer) => offer.category === selectedCategory,
+                      );
+
+            // Dann nach Suchbegriff filtern (nur wenn Suchbegriff vorhanden)
+            if (searchQuery.trim() !== "") {
+                filtered = filtered.filter(
+                    (offer) =>
+                        offer.title
+                            ?.toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                        offer.description
+                            ?.toLowerCase()
+                            .includes(searchQuery.toLowerCase()) ||
+                        offer.location
+                            ?.toLowerCase()
+                            .includes(searchQuery.toLowerCase()),
+                );
+            }
+            return filtered;
+        })(),
     );
 
     // $effect explizit für filteredOffers und currentBatch
     $effect(() => {
         const filtered = filteredOffers;
         const batch = currentBatch;
-        
+
         if (filtered && filtered.length > 0) {
             const itemsToShow = batch * batchSize;
             visibleOffers = filtered.slice(0, itemsToShow);
@@ -35,12 +59,12 @@
 
     async function loadOffers() {
         try {
-            const offerData = await swapBoxService.getOffers({ 
-                status: 'active' 
+            const offerData = await swapBoxService.getOffers({
+                status: "active",
             });
             allOffers = offerData;
         } catch (error) {
-            console.error('Fehler beim Laden der Angebote:', error);
+            console.error("Fehler beim Laden der Angebote:", error);
             allOffers = [];
         }
     }
@@ -66,13 +90,13 @@
 
     function formatDate(dateString) {
         const date = new Date(dateString);
-        const options = { 
-            weekday: 'short', 
-            day: '2-digit', 
-            month: '2-digit', 
-            year: 'numeric' 
+        const options = {
+            weekday: "short",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
         };
-        return date.toLocaleDateString('de-DE', options);
+        return date.toLocaleDateString("de-DE", options);
     }
 
     function getFirstImage(offer) {
@@ -82,7 +106,13 @@
     function selectCategory(category) {
         selectedCategory = category;
         currentBatch = 1;
-        dropdownOpen = false; // Dropdown schließen
+        dropdownOpen = false;
+    }
+
+    // Neue Funktion für Suchbehandlung
+    function handleSearch(event) {
+        searchQuery = event.detail.query;
+        currentBatch = 1; // Batch zurücksetzen bei neuer Suche
     }
 
     onMount(async () => {
@@ -92,32 +122,43 @@
     });
 </script>
 
-<SearchBar />
+<SearchBar on:search={handleSearch} />
 
 <!-- Filter Dropdown -->
 <details class="dropdown mx-2 mb-4" bind:open={dropdownOpen}>
-  <summary class="btn">
-    Kategorie: {selectedCategory}
-  </summary>
-  <ul class="menu dropdown-content bg-base-100 rounded-box shadow z-10 w-52 p-2 mt-1">
-    <li>
-      <button
-        class:selected={selectedCategory === 'Alle'}
-        on:click={() => selectCategory('Alle')}>
-        Alle Kategorien
-      </button>
-    </li>
-    {#each CATEGORIES as cat}
-      <li>
-        <button
-          class:selected={selectedCategory === cat.name}
-          on:click={() => selectCategory(cat.name)}>
-          {cat.name}
-        </button>
-      </li>
-    {/each}
-  </ul>
+    <summary class="btn">
+        Kategorie: {selectedCategory}
+    </summary>
+    <ul
+        class="menu dropdown-content bg-base-100 rounded-box shadow z-10 w-52 p-2 mt-1"
+    >
+        <li>
+            <button
+                class:selected={selectedCategory === "Alle"}
+                on:click={() => selectCategory("Alle")}
+            >
+                Alle Kategorien
+            </button>
+        </li>
+        {#each CATEGORIES as cat}
+            <li>
+                <button
+                    class:selected={selectedCategory === cat.name}
+                    on:click={() => selectCategory(cat.name)}
+                >
+                    {cat.name}
+                </button>
+            </li>
+        {/each}
+    </ul>
 </details>
+
+<!-- Suchergebnis-Info -->
+{#if searchQuery.trim() !== ""}
+    <div class="mx-2 mb-2 text-sm text-gray-600">
+        Suchergebnisse für: "{searchQuery}" ({filteredOffers.length} gefunden)
+    </div>
+{/if}
 
 <!-- Angebotsliste -->
 <div class="mx-2 flex flex-col gap-4">
@@ -134,7 +175,11 @@
     {/each}
 
     {#if visibleOffers.length === 0 && filteredOffers.length === 0 && !loading}
-        <p class="text-center text-gray-400">Keine Angebote in dieser Kategorie gefunden.</p>
+        <p class="text-center text-gray-400">
+            {searchQuery.trim() !== ""
+                ? "Keine Suchergebnisse gefunden."
+                : "Keine Angebote in dieser Kategorie gefunden."}
+        </p>
     {/if}
 
     {#if loading}
@@ -142,9 +187,7 @@
     {/if}
 
     {#if visibleOffers.length < filteredOffers.length && !loading}
-        <button 
-            class="btn btn-outline mx-auto"
-            on:click={loadMore}>
+        <button class="btn btn-outline mx-auto" on:click={loadMore}>
             Mehr laden ({filteredOffers.length - visibleOffers.length} weitere)
         </button>
     {/if}

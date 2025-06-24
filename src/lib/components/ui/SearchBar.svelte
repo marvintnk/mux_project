@@ -1,69 +1,55 @@
 <script>
     import { Search, X } from "@lucide/svelte";
+    import { createEventDispatcher } from 'svelte';
 
-    let searchMockup = $state([
-        "Headset",
-        "mathe nahhilfe",
-        "Mathenachhilfe",
-        "Hilfe für mathe",
-        "Mathe Nachhilfe",
-        "Nachhilfe in Mathematik",
-        "Hilfe bei Mathe",
-        "Lernhilfe Mathe",
-        "Mathe Nachhilfe Online",
-        "Laptop 15 Zoll",
-        "Smartphone 64 GB",
-        "Bike faltbar",
-        "Kleiderschrank 1m",
-        "Mitarbeiter gesucht",
-        "Fitnessband 30 cm",
-        "Schrank mit Türen",
-        "Suche Nachhilfe",
-        "Rechtschreibfehler beheben",
-        "Koffer zum Verkauf",
-        "Stuhl für Büro"
-    ]);
+    const dispatch = createEventDispatcher();
 
     let searchBarVisible = $state(false);
-
-    const removeItem = (i) => {
-        searchMockup[i] = null;
-        searchMockup = searchMockup.filter(item => item !== null);
-        // TODO: Backend request
-    }
-
-    const clear = () => {
-        searchMockup = [];
-        // TODO: Backend request
-    }
+    let searchValue = $state('');
+    let inputElement;
 
     const search = (text) => {
-        // TODO: implement search
+        searchValue = text;
+        searchBarVisible = false;
+        // Event an Parent-Komponente senden
+        dispatch('search', { query: text });
+    }
+
+    const handleInput = (event) => {
+        searchValue = event.target.value;
+        // Live-Suche während der Eingabe
+        dispatch('search', { query: searchValue });
+    }
+
+    const handleKeydown = (event) => {
+        if (event.key === 'Enter') {
+            search(searchValue);
+        }
+    }
+
+    const clearSearch = () => {
+        searchValue = '';
+        dispatch('search', { query: '' });
+        inputElement?.focus();
     }
 </script>
 
-<div class="{searchBarVisible && searchMockup.length > 0 ? 'shadow-sm rounded-box' : ''} mx-4">
+<div class="mx-4">
     <div class="flex mt-5">
-        <div class="input w-full" onclick="{searchBarVisible = true}" onfocusout="{searchBarVisible = false}">
+        <div class="input w-full flex items-center" onclick="{() => { inputElement?.focus(); }}">
             <Search />
-            <input type="text" placeholder="Suche" />
+            <input 
+                bind:this={inputElement}
+                bind:value={searchValue}
+                type="text" 
+                placeholder="Suche" 
+                class="flex-1"
+                oninput={handleInput}
+                onkeydown={handleKeydown}
+            />
+            {#if searchValue}
+                <X class="cursor-pointer ml-2" onclick={clearSearch} />
+            {/if}
         </div>
     </div>
-
-    {#if searchBarVisible && searchMockup.length > 0}
-        <div class="max-h-32 mt-1" style="overflow-y: scroll !important;">
-            {#each searchMockup as item, i}
-                <div class="flex hover:cursor-pointer">
-                    <p class="ml-2 hover:cursor-pointer" onclick={() => search(item)}>{item}</p>
-                    <p style="margin-left: auto;" class="place-content-center">
-                        <X size="1.2em" class="cursor-pointer" onclick={() => removeItem(i)} />
-                    </p>
-                </div>
-            {/each}
-        </div>
-
-        <div class="ml-2 py-2 text-red-600 hover:cursor-pointer" onclick={() => clear()}>
-            Suchverlauf löschen
-        </div>
-    {/if}
 </div>
