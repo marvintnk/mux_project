@@ -6,6 +6,9 @@
     import InvalidImageModal from "$lib/components/ui/InvalidImageModal.svelte";
     import { swapBoxService } from "$lib/api/swapbox.service.js";
     import { goto } from "$app/navigation";
+    import { onMount } from "svelte";
+
+
 
     let images = $state([]);
     let imageFiles = $state([]); // Speichert die tatsächlichen File-Objekte
@@ -25,12 +28,7 @@
     });
 
     // Aktueller Benutzer
-    let currentUserId = $state(data.currentUserId);
-    let currentUser = $state(data.currentUser);
-
-    // Debug: User-Daten anzeigen
-    console.log('Current User:', currentUser);
-    console.log('Current User ID:', currentUserId);
+    let user = data.user;
 
     const startVideoStream = async () => {
         videoStream = true;
@@ -142,7 +140,7 @@
         try {
             // 1. Angebot erstellen
             const offerData = {
-                user_id: currentUserId,
+                user_id: user.id,
                 title: formData.title,
                 description: formData.description,
                 category: formData.category,
@@ -158,7 +156,7 @@
                 const uploadResult = await swapBoxService.uploadMultipleOfferImages(
                     createdOffer.id, 
                     imageFiles, 
-                    currentUserId
+                    user.id
                 );
                 
                 console.log(`${uploadResult.successCount} von ${uploadResult.total} Bildern erfolgreich hochgeladen`);
@@ -179,6 +177,13 @@
             isLoading = false;
         }
     }
+
+     onMount(() => {
+        // Debug: User-Daten anzeigen
+        console.dir(user);
+    });
+
+
 </script>
 
 <GoBackItem/>

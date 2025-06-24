@@ -1,30 +1,31 @@
+// @ts-ignore
 import { swapBoxService } from '$lib/api/swapbox.service.js';
 
 export async function handle({ event, resolve }) {
   const userId = event.cookies.get('userId');
+
+  console.log('🍪 Cookie userId:', userId);
+
   
   if (userId) {
     try {
-      const user = await swapBoxService.getUserById(parseInt(userId));
+      const user = await swapBoxService.getUserById(userId);
       
+      console.dir(user);
+
       if (user) {
         // User-Daten in locals speichern
         event.locals.user = user;
-        event.locals.userId = user.id;
-        event.locals.isAuthenticated = true;
       } else {
-        // User existiert nicht mehr - Cookie löschen
-        event.cookies.delete('userId', { path: '/' });
-        event.locals.isAuthenticated = false;
+        // User existiert nicht mehr
+        event.locals.user = null;
       }
     } catch (error) {
       console.error('Error loading user in hooks:', error);
-      // Ungültiges Cookie - löschen
-      event.cookies.delete('userId', { path: '/' });
-      event.locals.isAuthenticated = false;
+      event.locals.user = null;
     }
   } else {
-    event.locals.isAuthenticated = false;
+    event.locals.user = null;
   }
 
   return await resolve(event);

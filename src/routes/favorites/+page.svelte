@@ -29,7 +29,7 @@
 <div class="flex flex-col {idAskDeletion !== null ? 'blur-xs' : ''}">
     <p class="text-2xl font-bold mx-auto">Favoriten</p>
 
-    <div class="max-h-full mt-10 mx-2" style="overflow-y: scroll !important;">
+    <div class="max-h-full mt-10 mx-2 gap-4" style="overflow-y: scroll !important;">
         {#each mockupData as item, i}
             <CategoryCard location={item.location} title={item.title} date={item.date} hasLiked={true} isFavoriteItem={true} clickFunction={() => idAskDeletion = i}/>
         {/each}

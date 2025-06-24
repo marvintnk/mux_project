@@ -50,17 +50,17 @@ export const actions = {
         });
       }
 
-      // Session Cookie setzen (7 Tage gültig)
-      const expirationDate = new Date();
-      expirationDate.setDate(expirationDate.getDate() + 7);
+      console.log('Login successful, attempting to set cookie...');
 
+      // Session Cookie setzen (7 Tage gültig)
       cookies.set('userId', userData.id.toString(), {
         path: '/',
-        expires: expirationDate,
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict'
+        expires: new Date(Date.now() + 1000*60*60)
       });
+      console.log('Cookie set successfully. Redirecting...');
+
+        // DEBUG: Cookie-Wert ausgeben
+      console.log('🍪 Cookie userId:', cookies.get('userId'));
 
       // Erfolgreiche Anmeldung - Weiterleitung
       throw redirect(303, '/');
