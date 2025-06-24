@@ -45,7 +45,6 @@ class SwapBoxService {
         email: userData.email,
         password_hash: userData.password_hash,
         verified: userData.verified || false,
-        profile_picture: userData.profile_picture || null,
         location: userData.location || null,
         rating: userData.rating || 0,
         role: userData.role || 'student'
@@ -82,47 +81,6 @@ class SwapBoxService {
     return true;
   }
 
-    async uploadUserImage(userId, file) {
-    try {
-      // Validate file
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-      
-      if (file.size > maxSize) {
-        throw new Error('Datei ist zu groß (max. 5MB)');
-      }
-
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error('Dateityp nicht unterstützt. Nur JPEG, PNG und WebP erlaubt.');
-      }
-
-      const fileExtension = file.name.split('.').pop();
-      const fileName = `${userId}_${Date.now()}.${fileExtension}`;
-
-      // Upload to Supabase Storage
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('user-images')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
-
-      if (uploadError) throw uploadError;
-
-      const publicUrl = supabase.storage.from('profile-pictures').getPublicUrl(uploadData.path).data.publicUrl;
-
-      // Update user record with new profile picture URL
-      await this.updateUser(userId, { profile_picture: uploadData.path });
-
-      return {
-        path: uploadData.path,
-        public_url: publicUrl
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
 
   // ========== OFFERS ==========
   async getOffers(filters = {}) {
@@ -130,9 +88,8 @@ class SwapBoxService {
       .from('offers')
       .select(`
         *,
-        users:user_id(name, profile_picture, rating),
-        offer_images(id, image_url, uploaded_at),
-        events(event_date, event_location, description)
+        users:user_id(name, rating),
+        offer_images(id, image_url, uploaded_at)
       `)
       .order('created_at', { ascending: false });
 
@@ -150,6 +107,9 @@ class SwapBoxService {
     }
     if (filters.user_id) {
       query = query.eq('user_id', filters.user_id);
+    }
+    if (filters.excludeCategory) {
+      query = query.not('category', 'eq', filters.excludeCategory);
     }
 
     const { data, error } = await query;
@@ -171,10 +131,9 @@ class SwapBoxService {
       .from('offers')
       .select(`
         *,
-        users:user_id(name, profile_picture, rating, email),
-        offer_images(id, image_url, uploaded_at),
-        events(event_date, event_location, description)
-      `)
+        users:user_id(name, rating),
+        offer_images(id, image_url, uploaded_at)
+        `)
       .eq('id', id)
       .single();
     
@@ -198,7 +157,7 @@ class SwapBoxService {
         title: offerData.title,
         description: offerData.description,
         category: offerData.category,
-        status: offerData.status || 'verfügbar',
+        status: offerData.status || 'active',
         type: offerData.type,
         location: offerData.location
       }])
@@ -384,7 +343,7 @@ class SwapBoxService {
       .from('favorites')
       .select(`
         *,
-        offers(*, users:user_id(name, profile_picture), offer_images(id, image_url, uploaded_at))
+        offers(*, users:user_id(name), offer_images(id, image_url, uploaded_at))
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
@@ -440,78 +399,6 @@ class SwapBoxService {
     return !error && data;
   }
 
-  // ========== EVENTS ==========
-  async getEvents(filters = {}) {
-    let query = supabase
-      .from('events')
-      .select(`
-        *,
-        offers(*, users:user_id(name, profile_picture))
-      `)
-      .order('event_date', { ascending: true });
-
-    if (filters.upcoming) {
-      query = query.gte('event_date', new Date().toISOString());
-    }
-
-    const { data, error } = await query;
-    
-    if (error) throw error;
-    return data;
-  }
-
-  async getEventById(id) {
-    const { data, error } = await supabase
-      .from('events')
-      .select(`
-        *,
-        offers(*, users:user_id(name, profile_picture, email))
-      `)
-      .eq('id', id)
-      .single();
-    
-    if (error) throw error;
-    return data;
-  }
-
-  async createEvent(eventData) {
-    const { data, error } = await supabase
-      .from('events')
-      .insert([{
-        offer_id: eventData.offer_id,
-        event_date: eventData.event_date,
-        event_location: eventData.event_location,
-        description: eventData.description
-      }])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  }
-
-  async updateEvent(id, eventData) {
-    const { data, error } = await supabase
-      .from('events')
-      .update(eventData)
-      .eq('id', id)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  }
-
-  async deleteEvent(id) {
-    const { error } = await supabase
-      .from('events')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    return true;
-  }
-
   // ========== CHATS ==========
   async getChats(userId) {
     const { data, error } = await supabase
@@ -519,8 +406,8 @@ class SwapBoxService {
       .select(`
         *,
         offers(title, category),
-        user1:user1_id(name, profile_picture),
-        user2:user2_id(name, profile_picture),
+        user1:user1_id(name),
+        user2:user2_id(name),
         messages(content, sent_at, read, sender_id)
       `)
       .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
@@ -550,8 +437,8 @@ class SwapBoxService {
       .select(`
         *,
         offers(title, category, user_id),
-        user1:user1_id(name, profile_picture),
-        user2:user2_id(name, profile_picture)
+        user1:user1_id(name),
+        user2:user2_id(name)
       `)
       .eq('id', id)
       .single();
@@ -593,7 +480,7 @@ class SwapBoxService {
       .from('messages')
       .select(`
         *,
-        sender:sender_id(name, profile_picture)
+        sender:sender_id(name)
       `)
       .eq('chat_id', chatId)
       .order('sent_at', { ascending: true });
@@ -770,48 +657,6 @@ class SwapBoxService {
     }
   }
 
-  // ========== REPORTS ==========
-  async getReports() {
-    const { data, error } = await supabase
-      .from('reports')
-      .select(`
-        *,
-        reporter:reporter_id(name, email),
-        offers(title, user_id),
-        messages(content, sender_id)
-      `)
-      .order('created_at', { ascending: false });
-    
-    if (error) throw error;
-    return data;
-  }
-
-  async createReport(reportData) {
-    const { data, error } = await supabase
-      .from('reports')
-      .insert([{
-        reporter_id: reportData.reporter_id,
-        offer_id: reportData.offer_id || null,
-        message_id: reportData.message_id || null,
-        reason: reportData.reason
-      }])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  }
-
-  async deleteReport(id) {
-    const { error } = await supabase
-      .from('reports')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    return true;
-  }
-
   // ========== UTILITY METHODS ==========
   async searchOffers(searchTerm, filters = {}) {
     let query = supabase
@@ -822,7 +667,7 @@ class SwapBoxService {
         offer_images(id, image_url, uploaded_at)
       `)
       .or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
-      .eq('status', 'verfügbar');
+      .eq('status', 'active');
 
     if (filters.category) {
       query = query.eq('category', filters.category);

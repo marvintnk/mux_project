@@ -14,17 +14,18 @@
 
     async function loadEvents() {
         try {
-            const eventData = await swapBoxService.getEvents({ upcoming: true });
+            const eventData = await swapBoxService.getOffers({ category: 'Event', status: 'active' });
             events = eventData.slice(0, 3); // Nur die ersten 3 Events anzeigen
         } catch (error) {
             console.error('Fehler beim Laden der Events:', error);
             events = [];
         }
+        console.log(events.length);
     }
 
     async function loadOffers() {
         try {
-            const offerData = await swapBoxService.getOffers({ status: 'verfügbar' });
+            const offerData = await swapBoxService.getOffers({ excludeCategory: 'Event', status: 'active' });
             allOffers = offerData;
             loadInitial();
         } catch (error) {
@@ -99,12 +100,12 @@
 <div class="mx-2 flex flex-col gap-4">
     {#each events as event}
         <CategoryCard
-            imageData={getFirstImage(event.offers)}
+            imageData={getFirstImage(event)}
             likes={0}
-            location={event.event_location}
-            title={event.offers?.title || 'Event'}
-            date={formatDate(event.event_date)}
-            href="/event/{event.id}"
+            location={event.location}
+            title={event.title}
+            date={formatDate(event.created_at)}
+            href="/offer/{event.id}"
             hasLiked={false}
         />
     {/each}

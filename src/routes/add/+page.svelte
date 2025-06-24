@@ -146,7 +146,7 @@
                 category: formData.category,
                 type: formData.type,
                 location: formData.location,
-                status: 'verfügbar'
+                status: 'active'
             };
 
             const createdOffer = await swapBoxService.createOffer(offerData);

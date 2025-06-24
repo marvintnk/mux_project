@@ -1,0 +1,151 @@
+<script>
+    import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
+    import SearchBar from "$lib/components/ui/SearchBar.svelte";
+    import { CATEGORIES } from "$lib/categories.js";
+    import { onMount } from "svelte";
+    import { swapBoxService } from '$lib/api/swapbox.service.js';
+
+    let allOffers = $state([]);
+    let visibleOffers = $state([]);
+    let batchSize = 20;
+    let loading = $state(false);
+    let selectedCategory = $state('Alle');
+    let currentBatch = $state(1);
+    let dropdownOpen = $state(false); // Neue Variable für Dropdown-Zustand
+
+    // $derived für reaktive Berechnung der gefilterten Angebote
+    let filteredOffers = $derived(
+        selectedCategory === 'Alle'
+            ? allOffers
+            : allOffers.filter(offer => offer.category === selectedCategory)
+    );
+
+    // $effect explizit für filteredOffers und currentBatch
+    $effect(() => {
+        const filtered = filteredOffers;
+        const batch = currentBatch;
+        
+        if (filtered && filtered.length > 0) {
+            const itemsToShow = batch * batchSize;
+            visibleOffers = filtered.slice(0, itemsToShow);
+        } else {
+            visibleOffers = [];
+        }
+    });
+
+    async function loadOffers() {
+        try {
+            const offerData = await swapBoxService.getOffers({ 
+                status: 'active' 
+            });
+            allOffers = offerData;
+        } catch (error) {
+            console.error('Fehler beim Laden der Angebote:', error);
+            allOffers = [];
+        }
+    }
+
+    function loadMore() {
+        if (loading || visibleOffers.length >= filteredOffers.length) return;
+        loading = true;
+
+        setTimeout(() => {
+            currentBatch += 1;
+            loading = false;
+        }, 300);
+    }
+
+    function handleScroll() {
+        const scrollBottom = window.scrollY + window.innerHeight;
+        const docHeight = document.body.offsetHeight;
+
+        if (scrollBottom >= docHeight - 100) {
+            loadMore();
+        }
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { 
+            weekday: 'short', 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric' 
+        };
+        return date.toLocaleDateString('de-DE', options);
+    }
+
+    function getFirstImage(offer) {
+        return offer.offer_images?.[0]?.public_url || null;
+    }
+
+    function selectCategory(category) {
+        selectedCategory = category;
+        currentBatch = 1;
+        dropdownOpen = false; // Dropdown schließen
+    }
+
+    onMount(async () => {
+        await loadOffers();
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    });
+</script>
+
+<SearchBar />
+
+<!-- Filter Dropdown -->
+<details class="dropdown mx-2 mb-4" bind:open={dropdownOpen}>
+  <summary class="btn">
+    Kategorie: {selectedCategory}
+  </summary>
+  <ul class="menu dropdown-content bg-base-100 rounded-box shadow z-10 w-52 p-2 mt-1">
+    <li>
+      <button
+        class:selected={selectedCategory === 'Alle'}
+        on:click={() => selectCategory('Alle')}>
+        Alle Kategorien
+      </button>
+    </li>
+    {#each CATEGORIES as cat}
+      <li>
+        <button
+          class:selected={selectedCategory === cat.name}
+          on:click={() => selectCategory(cat.name)}>
+          {cat.name}
+        </button>
+      </li>
+    {/each}
+  </ul>
+</details>
+
+<!-- Angebotsliste -->
+<div class="mx-2 flex flex-col gap-4">
+    {#each visibleOffers as offer}
+        <CategoryCard
+            imageData={getFirstImage(offer)}
+            likes={0}
+            location={offer.location}
+            title={offer.title}
+            date={formatDate(offer.created_at)}
+            href={`/offer/${offer.id}`}
+            hasLiked={false}
+        />
+    {/each}
+
+    {#if visibleOffers.length === 0 && filteredOffers.length === 0 && !loading}
+        <p class="text-center text-gray-400">Keine Angebote in dieser Kategorie gefunden.</p>
+    {/if}
+
+    {#if loading}
+        <p class="text-center text-gray-400">Lade mehr...</p>
+    {/if}
+
+    {#if visibleOffers.length < filteredOffers.length && !loading}
+        <button 
+            class="btn btn-outline mx-auto"
+            on:click={loadMore}>
+            Mehr laden ({filteredOffers.length - visibleOffers.length} weitere)
+        </button>
+    {/if}
+</div>

@@ -24,7 +24,7 @@
 | title | VARCHAR | | Titel |
 | description | TEXT | | Beschreibung |
 | category | VARCHAR | | Kleidung, Bücher, etc. |
-| status | VARCHAR | | verfügbar / reserviert / getauscht |
+| status | VARCHAR | | verfügbar / reserviert / gelöscht |
 | type | VARCHAR | | tauschen / verschenken / verleihen / event |
 | location | VARCHAR | | z. B. Altstadt |
 | created_at | TIMESTAMP | | Datum erstellt |
