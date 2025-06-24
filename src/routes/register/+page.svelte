@@ -1,19 +1,22 @@
 <script>
-    // TODO: Waiting for backend implementation
-    // let { data } = $state();
-
+    import { swapBoxService } from "$lib/api/swapbox.service.js";
+    import { goto } from '$app/navigation';
+    
     let registering = $state(false);
     let registerButtonUnlocked = $state(false);
-
     let invalidEmail = $state(false);
     let invalidPassword = $state(false);
     let invalidPasswordConfirm = $state(false);
     let invalidUsername = $state(false);
+    let registrationError = $state('');
 
     const check = () => {
-        const password = document.getElementById("pw").value,
-              passwordConfirmation = document.getElementById("pwr").value;
+        const password = document.getElementById("pw").value;
+        const passwordConfirmation = document.getElementById("pwr").value;
+        const email = document.getElementById("email").value;
+        const username = document.getElementById("username").value;
 
+        // Password validation
         if (password.length < 8 || !matchesPasswordRequirements(password)) {
             invalidPassword = true;
             if(password.length > 0) {
@@ -28,18 +31,23 @@
             }
         } else {
             invalidPassword = false;
+            document.getElementById("ipass").innerHTML = "";
         }
 
-        if(passwordConfirmation.length < 8 || !matchesPasswordRequirements(passwordConfirmation)) {
+        // Password confirmation validation
+        if(passwordConfirmation.length > 0) {
             if(password !== passwordConfirmation) {
                 invalidPasswordConfirm = true;
-                document.getElementById("ipassc").innerHTML = "Die Passworter stimmen nicht überein.";
+                document.getElementById("ipassc").innerHTML = "Die Passwörter stimmen nicht überein.";
+            } else {
+                invalidPasswordConfirm = false;
+                document.getElementById("ipassc").innerHTML = "";
             }
         } else {
-            invalidPasswordConfirm = false;
+            invalidPasswordConfirm = passwordConfirmation.length === 0 ? false : true;
         }
 
-        const email = document.getElementById("email").value;
+        // Email validation
         if(!validateEmail(email)) {
             invalidEmail = true;
             document.getElementById("iemail").innerHTML = email.length > 0 ? "Bitte geben Sie eine valide E-Mail an." : "";
@@ -49,10 +57,73 @@
                 document.getElementById("iemail").innerHTML = "Wir erlauben lediglich E-Mail Adressen von der Technischen Hochschule Brandenburg.";
             } else {
                 invalidEmail = false;
+                document.getElementById("iemail").innerHTML = "";
             }
         }
 
-        registerButtonUnlocked = !invalidEmail && !invalidPasswordConfirm && !invalidPassword && !invalidUsername;
+        // Username validation
+        if(username.length > 0 && username.length < 3) {
+            invalidUsername = true;
+            document.getElementById("iuser").innerHTML = "Benutzername muss mindestens 3 Zeichen lang sein.";
+        } else {
+            invalidUsername = false;
+            document.getElementById("iuser").innerHTML = "";
+        }
+
+        registerButtonUnlocked = !invalidEmail && !invalidPasswordConfirm && !invalidPassword && !invalidUsername && 
+                                email.length > 0 && password.length > 0 && passwordConfirmation.length > 0 && username.length > 0;
+    }
+
+    const handleRegistration = async () => {
+        registering = true;
+        registrationError = '';
+        
+        try {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("pw").value;
+            const username = document.getElementById("username").value;
+
+            // Check if user already exists
+            const existingUser = await swapBoxService.getUserByEmail(email);
+            if (existingUser) {
+                throw new Error('Ein Benutzer mit dieser E-Mail existiert bereits.');
+            }
+
+            // Hash password (you'll need to implement password hashing)
+            const hashedPassword = await hashPassword(password);
+
+            // Create user record in your database
+            const userData = await swapBoxService.createUser({
+                name: username,
+                email: email,
+                password_hash: hashedPassword,
+                verified: false,
+                role: 'student'
+            });
+
+            registrationError = 'success';
+            
+            setTimeout(() => {
+                goto('/login?message=registration-success');
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Registration error:', error);
+            registrationError = error.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+        } finally {
+            registering = false;
+        }
+    }
+
+    // Simple password hashing function (you should use a proper library like bcrypt)
+    const hashPassword = async (password) => {
+        // This is a basic example - in production, use bcrypt or similar
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hash))
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
     }
 
     const matchesPasswordRequirements = (password) => {
@@ -88,6 +159,16 @@
         <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
             <legend class="fieldset-legend">Registrierung</legend>
 
+            {#if registrationError === 'success'}
+                <div class="alert alert-success mb-4">
+                    <span>Registrierung erfolgreich! Sie werden zur Anmeldung weitergeleitet...</span>
+                </div>
+            {:else if registrationError}
+                <div class="alert alert-error mb-4">
+                    <span>{registrationError}</span>
+                </div>
+            {/if}
+
             <label class="label">Benutzername</label>
             <input id="username" type="text" class="input" disabled="{registering}" oninput={() => check()} required />
             <p id="iuser" hidden="{!invalidUsername}" class="text-error"></p>
@@ -105,7 +186,11 @@
             <p id="ipassc" hidden="{!invalidPasswordConfirm}" class="text-error"></p>
 
             <a class="mt-5 text-right w-full link link-info" href="/login">Du hast bereits einen Account?</a>
-            <button class="btn btn-outline btn-success" disabled="{!registerButtonUnlocked || registering}" onclick={() => registering = true}>
+            <button 
+                class="btn btn-outline btn-success" 
+                disabled="{!registerButtonUnlocked || registering}" 
+                onclick={handleRegistration}
+            >
                 {#if registering}
                     <span class="loading loading-dots loading-md"></span>
                 {:else}

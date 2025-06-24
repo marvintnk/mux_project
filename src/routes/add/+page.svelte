@@ -11,6 +11,9 @@
     let imageFiles = $state([]); // Speichert die tatsächlichen File-Objekte
     let videoStream = $state(false);
     let isLoading = $state(false);
+
+    // Data aus dem Server Load
+    let { data } = $props();
     
     // Formulardaten
     let formData = $state({
@@ -21,8 +24,13 @@
         type: "biete" // "biete" oder "suche"
     });
 
-    // Aktueller Benutzer (sollte aus dem Auth-Context kommen)
-    let currentUserId = $state("11111111-1111-1111-1111-111111111111"); // TODO: Aus Auth-System holen
+    // Aktueller Benutzer
+    let currentUserId = $state(data.currentUserId);
+    let currentUser = $state(data.currentUser);
+
+    // Debug: User-Daten anzeigen
+    console.log('Current User:', currentUser);
+    console.log('Current User ID:', currentUserId);
 
     const startVideoStream = async () => {
         videoStream = true;

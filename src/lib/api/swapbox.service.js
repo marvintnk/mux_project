@@ -30,11 +30,12 @@ class SwapBoxService {
       .from('users')
       .select('*')
       .eq('email', email)
-      .single();
+      .maybeSingle(); // <- Verwenden Sie maybeSingle() statt single()
     
     if (error) throw error;
-    return data;
+    return data; // Gibt null zurück wenn kein User gefunden wird
   }
+
 
   async createUser(userData) {
     const { data, error } = await supabase
