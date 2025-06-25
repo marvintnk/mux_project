@@ -6,7 +6,6 @@
     import { onMount } from 'svelte';
 
     let { data } = $props();
-    // Aktueller Benutzer
     let user = data.user;
     let user_id = user.id;
 
@@ -31,7 +30,9 @@
                     month: '2-digit',
                     year: 'numeric'
                 }),
-                offer: favorite.offers
+                offer: favorite.offers,
+                // Wichtig: href für Navigation hinzufügen
+                href: `/offer/${favorite.offer_id}`
             }));
         } catch (err) {
             error = err.message;
@@ -81,6 +82,7 @@
                     location={item.location} 
                     title={item.title} 
                     date={item.date} 
+                    href={item.href}
                     hasLiked={true} 
                     isFavoriteItem={true} 
                     clickFunction={() => idAskDeletion = i}

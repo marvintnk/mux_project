@@ -24,7 +24,7 @@
         category: "",
         description: "",
         location: "",
-        type: "biete" // "biete" oder "suche"
+        type: "offer"
     });
 
     // Aktueller Benutzer
@@ -168,8 +168,8 @@
 
             // 3. Erfolgsmeldung und Weiterleitung
             alert("Angebot erfolgreich erstellt!");
-            goto('/offers'); // oder zur Detailseite des Angebots
-            
+            goto(`/offer/${createdOffer.id}`);
+
         } catch (error) {
             console.error("Fehler beim Erstellen des Angebots:", error);
             alert("Fehler beim Erstellen des Angebots: " + error.message);
@@ -239,7 +239,7 @@
 <div class="mx-10 mt-5 flex">
     <div class="flex w-full">
         <input type="radio" name="action-type" class="radio mr-2 radio-accent" 
-               bind:group={formData.type} value="biete" />
+               bind:group={formData.type} value="offer" />
         Ich biete
     </div>
     <div class="flex w-full">

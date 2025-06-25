@@ -7,28 +7,16 @@
         CircleUser,
         ContactRound
     } from "@lucide/svelte";
-
-    export let profileData = 0;
     
-    // Intelligente Navigation mit Invalidation
+    // Vereinfachte Navigation
     async function navigateWithAuth(path) {
-        // ALLE Routen außer Login/Register sind jetzt geschützt
-        const protectedRoutes = ['/', '/profile', '/favorites', '/add', '/chat', '/offer'];
-        const isProtected = protectedRoutes.some(route => 
-            path === route || path.startsWith(route + '/')
-        );
-        
-        if (isProtected) {
-            await invalidateAll();
-        }
-        
+        await invalidateAll();
         await goto(path);
     }
 </script>
 
 <div class="mt-15"></div>
 <div class="dock dock-sm">
-    {#if profileData}
         <!-- Nur für eingeloggte Benutzer -->
         <button onclick={() => navigateWithAuth('/')}>
             <svg width="19.2" height="19.2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -39,10 +27,7 @@
         </button>
 
         <button onclick={() => navigateWithAuth('/favorites')}>
-            <span class="indicator">
-                <BookHeart size="1.2em"/>
-                <span class="badge badge-accent badge-xs shadow-sm indicator-item">3</span>
-            </span>
+            <BookHeart size="1.2em"/>
             <span class="dock-label">Favoriten</span>
         </button>
 
@@ -52,7 +37,11 @@
         </button>
 
         <button onclick={() => navigateWithAuth('/chat')}>
-            <MessageCircleMore size="1.2em"/>
+            
+            <span class="indicator">
+                <MessageCircleMore size="1.2em"/>
+                <span class="badge badge-accent badge-xs shadow-sm indicator-item">3</span>
+            </span>
             <span class="dock-label font-bold">Chat</span>
         </button>
 
@@ -60,16 +49,4 @@
             <CircleUser size="1.2em"/>
             <span class="dock-label font-bold">Profil</span>
         </button>
-    {:else}
-        <!-- Nur für nicht eingeloggte Benutzer -->
-        <a href="/login">
-            <CircleUser size="1.2em"/>
-            <span class="dock-label">Login</span>
-        </a>
-
-        <a href="/register">
-            <ContactRound size="1.2em"/>
-            <span class="dock-label">Registrieren</span>
-        </a>
-    {/if}
 </div>
