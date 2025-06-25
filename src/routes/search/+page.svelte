@@ -16,15 +16,26 @@
     let dropdownOpen = $state(false);
     let searchQuery = $state('');
 
-    // $effect statt $: für URL-Parameter
+    // $effect für URL-Parameter (erweitert um Kategorie)
     $effect(() => {
         const query = $page.url.searchParams.get('q');
+        const category = $page.url.searchParams.get('category');
+        
+        // Suchanfrage setzen
         if (query) {
             searchQuery = query;
-            // SearchBar Wert setzen
             if (searchBarComponent) {
                 searchBarComponent.setSearchValue(query);
             }
+        } else {
+            searchQuery = '';
+        }
+        
+        // Kategorie setzen (nur wenn sie existiert)
+        if (category && CATEGORIES.some(cat => cat.name === category)) {
+            selectedCategory = category;
+        } else if (category === null) {
+            selectedCategory = 'Alle';
         }
     });
 
@@ -110,19 +121,34 @@
         selectedCategory = category;
         currentBatch = 1;
         dropdownOpen = false;
+        
+        // URL aktualisieren
+        const url = new URL(window.location);
+        if (category !== 'Alle') {
+            url.searchParams.set('category', category);
+        } else {
+            url.searchParams.delete('category');
+        }
+        window.history.replaceState({}, '', url);
     }
 
     function handleSearch(event) {
         searchQuery = event.detail.query;
         currentBatch = 1;
         
-        // URL aktualisieren
+        // URL aktualisieren (beide Parameter berücksichtigen)
         const url = new URL(window.location);
         if (searchQuery.trim() !== '') {
             url.searchParams.set('q', searchQuery);
         } else {
             url.searchParams.delete('q');
         }
+        
+        // Kategorie-Parameter beibehalten
+        if (selectedCategory !== 'Alle') {
+            url.searchParams.set('category', selectedCategory);
+        }
+        
         window.history.replaceState({}, '', url);
     }
 
