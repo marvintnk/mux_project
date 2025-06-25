@@ -82,7 +82,8 @@
     });
 </script>
 
-<SearchBar/>
+<SearchBar />
+
 
 <p class="text-xl mt-5 ml-2 font-bold">Kategorien</p>
 <div class="flex gap-4 mx-2 mt-2" style="overflow-y: scroll !important;">
