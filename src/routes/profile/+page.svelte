@@ -4,95 +4,184 @@
     import Rating from "$lib/components/ui/Rating.svelte";
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
     import InvalidImageModal from "$lib/components/ui/InvalidImageModal.svelte";
+    import { swapBoxService } from '$lib/api/swapbox.service.js';
+    import { onMount } from 'svelte';
 
-    let imageData = $state(null);
-    let name = $state("?");
-    let email = $state("email@th-brandenburg.de");
-    let rating = $state(3.5);
+    let { data } = $props();
+    let user = data.user;
+    let user_id = user.id;
 
-    let myOffers = $state([{
-        img: null,
-        link: "/offer/0",
-        likes: 1,
-        location: "Brandenburg an der Havel",
-        date: "Mo. 09.06.2025",
-        title: "Suche Nachhilfe"
-    }]);
-    //let myOffers = $state([]);
+    // Reactive states
+    let currentUser = $state(null);
+    let myOffers = $state([]);
+    let loading = $state(true);
+    let error = $state(null);
     let description = $state("");
+    let isEditingDescription = $state(false);
 
-    const getNewProfilePicture = () => {
-        const element = document.getElementById("fileInput");
-        const files = element.files;
+    // Funktion um Initialen aus E-Mail zu extrahieren
+    function getInitialsFromEmail(email) {
+        if (!email) return "??";
+        const parts = email.split('@')[0]; // Teil vor dem @
+        if (parts.length >= 2) {
+            return parts.substring(0, 2).toUpperCase();
+        } else if (parts.length === 1) {
+            return (parts[0] + parts[0]).toUpperCase();
+        }
+        return "??";
+    }
 
-        if(files.length > 0) {
-            const file = files[0];
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = function () {
-                if(reader.result.startsWith("data:image/")) {
-                    imageData = reader.result;
-                    // TODO: Upload new profile picture
-                } else {
-                    document.getElementById("modal_invalid_datatype").showModal();
-                }
-            };
+    // Load user data and offers
+    onMount(async () => {
+        try {
+            loading = true;
+            
+            // Load current user details
+            const userData = await swapBoxService.getUserById(user_id);
+            currentUser = userData;
+            description = userData.description || "";
+            
+            // Load user's offers
+            const offersData = await swapBoxService.getOffers({ user_id: user_id });
+            myOffers = offersData.map(offer => ({
+                id: offer.id,
+                img: offer.offer_images?.[0]?.public_url || null,
+                link: `/offer/${offer.id}`,
+                likes: 0,
+                location: offer.location,
+                date: new Date(offer.created_at).toLocaleDateString('de-DE', {
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                }),
+                title: offer.title,
+                offer: offer
+            }));
+            
+        } catch (err) {
+            error = err.message;
+            console.error('Fehler beim Laden der Benutzerdaten:', err);
+        } finally {
+            loading = false;
+        }
+    });
+
+    // Delete offer function
+    async function deleteOffer(offerId, index) {
+        try {
+            await swapBoxService.deleteOffer(offerId);
+            myOffers = myOffers.filter((_, i) => i !== index);
+        } catch (err) {
+            console.error('Fehler beim Löschen des Angebots:', err);
+            alert('Fehler beim Löschen des Angebots');
+        }
+    }
+
+    // Update description
+    async function updateDescription() {
+        try {
+            await swapBoxService.updateUser(user_id, { description: description });
+            isEditingDescription = false;
+            currentUser = { ...currentUser, description: description };
+        } catch (err) {
+            console.error('Fehler beim Aktualisieren der Beschreibung:', err);
+            alert('Fehler beim Aktualisieren der Beschreibung');
         }
     }
 </script>
 
 <GoBackItem showLogoutButton={true}/>
 
-<div class="flex">
-    <p class="text-2xl font-bold mx-auto">Mein Profil</p>
-</div>
-
-<div class="mx-2 mt-5">
+{#if loading}
+    <div class="flex justify-center items-center h-64">
+        <div class="loading loading-spinner loading-lg"></div>
+        <p class="ml-4">Profil wird geladen...</p>
+    </div>
+{:else if error}
+    <div class="alert alert-error mx-2 mt-4">
+        <p>Fehler beim Laden des Profils: {error}</p>
+    </div>
+{:else if currentUser}
     <div class="flex">
-        {#if imageData === null}
-            <div class="avatar avatar-placeholder" onclick={() => document.getElementById("fileInput").click()}>
+        <p class="text-2xl font-bold mx-auto">Mein Profil</p>
+    </div>
+
+    <div class="mx-2 mt-5">
+        <div class="flex">
+            <!-- Avatar mit E-Mail-Initialen -->
+            <div class="avatar avatar-placeholder">
                 <div class="bg-neutral text-neutral-content w-16 rounded-full">
-                    <span class="text-2xl">{name[0]}</span>
+                    <span class="text-2xl font-bold">{getInitialsFromEmail(currentUser.email)}</span>
                 </div>
             </div>
-        {:else}
-            <div class="avatar" onclick={() => document.getElementById("fileInput").click()}>
-                <div class="w-16 rounded-full ring-2">
-                    <img src={imageData} />
+
+            <div class="ml-5">
+                <p class="text-xl">{currentUser.name}</p>
+                <div>
+                    <Rating rating={currentUser.rating || 0} editable={false}/>
                 </div>
-            </div>
-        {/if}
-
-        <input id="fileInput" type="file" style="display:none;" accept="image/png, image/jpeg" oninput={() => getNewProfilePicture()} />
-
-        <div class="ml-5">
-            <p class="text-xl">{name}</p>
-
-            <div>
-                <Rating rating={rating}/>
             </div>
         </div>
+
+        <p class="ml-4 text-lg">{currentUser.email}</p>
+        
+        {#if isEditingDescription}
+            <textarea 
+                class="textarea mt-8 w-full h-32 px-4" 
+                placeholder="Meine Beschreibung" 
+                style="resize: none !important;"
+                bind:value={description}
+            ></textarea>
+            <div class="flex gap-2 mt-2">
+                <button class="btn btn-accent flex-1" onclick={updateDescription}>Speichern</button>
+                <button class="btn btn-outline flex-1" onclick={() => {
+                    isEditingDescription = false;
+                    description = currentUser.description || "";
+                }}>Abbrechen</button>
+            </div>
+        {:else}
+            <textarea 
+                class="textarea mt-8 w-full h-32 px-4" 
+                placeholder="Meine Beschreibung" 
+                readonly="true" 
+                style="resize: none !important;"
+                value={description}
+            ></textarea>
+            <button class="btn btn-accent w-full mt-2" onclick={() => isEditingDescription = true}>
+                Beschreibung bearbeiten
+            </button>
+        {/if}
     </div>
 
-    <p class="ml-4 text-lg">{email}</p>
-    <textarea class="textarea mt-8 w-full h-32 px-4" placeholder="Meine Beschreibung" style="resize: none !important;">{description}</textarea>
-    <button class="btn btn-accent w-full mt-2">Beschreibung bearbeiten</button>
-</div>
-
-{#if myOffers.length > 0}
-    <p class="pl-1 mt-5 text-2xl w-full border-b border-base-400">{myOffers.length} {myOffers.length === 1 ? 'Anzeige' : 'Anzeigen'}</p>
-    <div class="mx-2 mt-5">
-        {#each myOffers as item}
-            <CategoryCard imageData={item.img} likes={item.likes} location={item.location} title={item.title} date={item.date} href={item.link} isDeleteItem={true} trashClickFunction={() => {
-                console.log("test");
-            }}/>
-        {/each}
-    </div>
+    {#if myOffers.length > 0}
+        <p class="pl-1 mt-5 text-2xl w-full border-b border-base-400">
+            {myOffers.length} {myOffers.length === 1 ? 'Anzeige' : 'Anzeigen'}
+        </p>
+        <div class="mx-2 mt-5">
+            {#each myOffers as item, index}
+                <CategoryCard 
+                    imageData={item.img} 
+                    likes={item.likes} 
+                    location={item.location} 
+                    title={item.title} 
+                    date={item.date} 
+                    href={item.link} 
+                    isDeleteItem={true} 
+                    trashClickFunction={() => deleteOffer(item.id, index)}
+                />
+            {/each}
+        </div>
+    {:else}
+        <div class="mt-5 w-full border-b border-base-400"></div>
+        <p class="text-2xl mt-5 text-center">Sie haben noch keine Anzeigen</p>
+        <div class="flex justify-center mt-2">
+            <a class="btn btn-accent" href="/add">Anzeige aufgeben</a>
+        </div>
+    {/if}
 {:else}
-    <div class="mt-5 w-full border-b border-base-400"></div>
-    <p class="text-2xl mt-5 text-center">Sie haben noch keine Anzeigen</p>
-    <div class="flex justify-center mt-2">
-        <a class="btn btn-accent" href="/add">Anzeige aufgeben</a>
+    <div class="alert alert-warning mx-2 mt-4">
+        <p>Benutzer nicht gefunden</p>
     </div>
 {/if}
 
