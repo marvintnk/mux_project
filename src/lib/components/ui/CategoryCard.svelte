@@ -12,9 +12,17 @@
     export let clickFunction = null;
 
     export let imageData = null;
+
+    // Handler für das Entfernen von Favoriten
+    function handleRemoveClick(event) {
+        event.stopPropagation(); // Verhindert Event-Bubbling
+        if (clickFunction) {
+            clickFunction();
+        }
+    }
 </script>
 
-<a class="shadow-sm flex rounded-box" href={href} onclick={() => { if(clickFunction) { clickFunction(); } }}>
+<a class="shadow-sm flex rounded-box" href={href}>
     {#if imageData === null}
         <div class="skeleton min-h-16 min-w-16 m-2"></div>
     {:else}
@@ -31,7 +39,7 @@
 
         <div class="flex justify-end">
             {#if isFavoriteItem}
-                <button class="shadow-sm rounded-box flex">
+                <button class="shadow-sm rounded-box flex" onclick={handleRemoveClick}>
                     <p class="mx-2 text-sm mt-1">Entfernen</p>
                     <HeartBreakIcon size={20} classes="m-1" fill="#eb4034" stroke="#eb4034"/>
                 </button>

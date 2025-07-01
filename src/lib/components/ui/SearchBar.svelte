@@ -1,69 +1,85 @@
 <script>
     import { Search, X } from "@lucide/svelte";
+    import { createEventDispatcher } from 'svelte';
+    import { goto } from '$app/navigation';
 
-    let searchMockup = $state([
-        "Headset",
-        "mathe nahhilfe",
-        "Mathenachhilfe",
-        "Hilfe für mathe",
-        "Mathe Nachhilfe",
-        "Nachhilfe in Mathematik",
-        "Hilfe bei Mathe",
-        "Lernhilfe Mathe",
-        "Mathe Nachhilfe Online",
-        "Laptop 15 Zoll",
-        "Smartphone 64 GB",
-        "Bike faltbar",
-        "Kleiderschrank 1m",
-        "Mitarbeiter gesucht",
-        "Fitnessband 30 cm",
-        "Schrank mit Türen",
-        "Suche Nachhilfe",
-        "Rechtschreibfehler beheben",
-        "Koffer zum Verkauf",
-        "Stuhl für Büro"
-    ]);
+    const dispatch = createEventDispatcher();
 
-    let searchBarVisible = $state(false);
+    // Props mit $props() statt export let
+    let { mode = 'navigate' } = $props();
 
-    const removeItem = (i) => {
-        searchMockup[i] = null;
-        searchMockup = searchMockup.filter(item => item !== null);
-        // TODO: Backend request
-    }
+    let searchValue = $state('');
+    let inputElement;
 
-    const clear = () => {
-        searchMockup = [];
-        // TODO: Backend request
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        search(searchValue);
     }
 
     const search = (text) => {
-        // TODO: implement search
+        if (text.trim() !== '') {
+            if (mode === 'navigate') {
+                goto(`/search?q=${encodeURIComponent(text.trim())}`);
+            } else {
+                dispatch('search', { query: text });
+            }
+        }
     }
+
+    const handleInput = (event) => {
+        searchValue = event.target.value;
+        if (mode === 'search') {
+            dispatch('search', { query: searchValue });
+        }
+    }
+
+    const clearSearch = () => {
+        searchValue = '';
+        if (mode === 'search') {
+            dispatch('search', { query: '' });
+        }
+        inputElement?.focus();
+    }
+
+    // Exportierte Funktion für externe Zugriffe
+    function setSearchValue(value) {
+        searchValue = value;
+    }
+
+    // Funktion exportieren
+    export { setSearchValue };
 </script>
 
-<div class="{searchBarVisible && searchMockup.length > 0 ? 'shadow-sm rounded-box' : ''} mx-4">
-    <div class="flex mt-5">
-        <div class="input w-full" onclick="{searchBarVisible = true}" onfocusout="{searchBarVisible = false}">
-            <Search />
-            <input type="text" placeholder="Suche" />
+<div class="mx-4">
+    <form class="flex mt-5" on:submit={handleSubmit}>
+        <div class="input w-full flex items-center">
+            <input 
+                bind:this={inputElement}
+                bind:value={searchValue}
+                type="text" 
+                placeholder="Suche" 
+                class="flex-1 bg-transparent border-none outline-none"
+                on:input={handleInput}
+            />
+            
+            {#if searchValue}
+                <button 
+                    type="button"
+                    class="cursor-pointer ml-2 p-1 hover:bg-gray-100 rounded"
+                    on:click={clearSearch}
+                    aria-label="Suche löschen"
+                >
+                    <X size="16" />
+                </button>
+            {/if}
+            
+            <button 
+                type="submit"
+                class="cursor-pointer ml-2 p-1 hover:bg-gray-100 rounded"
+                aria-label="Suchen"
+            >
+                <Search size="16" />
+            </button>
         </div>
-    </div>
-
-    {#if searchBarVisible && searchMockup.length > 0}
-        <div class="max-h-32 mt-1" style="overflow-y: scroll !important;">
-            {#each searchMockup as item, i}
-                <div class="flex hover:cursor-pointer">
-                    <p class="ml-2 hover:cursor-pointer" onclick={() => search(item)}>{item}</p>
-                    <p style="margin-left: auto;" class="place-content-center">
-                        <X size="1.2em" class="cursor-pointer" onclick={() => removeItem(i)} />
-                    </p>
-                </div>
-            {/each}
-        </div>
-
-        <div class="ml-2 py-2 text-red-600 hover:cursor-pointer" onclick={() => clear()}>
-            Suchverlauf löschen
-        </div>
-    {/if}
+    </form>
 </div>

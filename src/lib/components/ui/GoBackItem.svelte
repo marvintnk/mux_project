@@ -3,16 +3,26 @@
 
     export let href = "/";
     export let showLogoutButton = false;
+    
+    // Logout-Funktion
+    function handleLogout() {
+        // Zur Logout-Route navigieren
+        window.location.href = '/logout';
+    }
 </script>
 
 <div class="flex justify-start">
     {#if showLogoutButton}
-        <a class="shadow-sm rounded-box m-2 p-1" href="/logout">
+        <button 
+            class="shadow-sm rounded-box m-2 p-1 hover:bg-base-200 transition-colors" 
+            onclick={handleLogout}
+            title="Abmelden"
+        >
             <LogOut size={24} />
-        </a>
+        </button>
     {/if}
 
-    <a class="shadow-sm rounded-box m-2 p-1" href={href} style="margin-left: auto !important;">
+    <a class="shadow-sm rounded-box m-2 p-1 hover:bg-base-200 transition-colors" href={href} style="margin-left: auto !important;">
         <X size={24} />
     </a>
 </div>
