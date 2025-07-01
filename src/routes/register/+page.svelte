@@ -70,8 +70,7 @@
             document.getElementById("iuser").innerHTML = "";
         }
 
-        registerButtonUnlocked = !invalidEmail && !invalidPasswordConfirm && !invalidPassword && !invalidUsername &&
-                                email.length > 0 && password.length > 0 && passwordConfirmation.length > 0 && username.length > 0;
+        registerButtonUnlocked = !invalidEmail && !invalidPasswordConfirm && !invalidPassword && !invalidUsername && email.length > 0 && password.length > 0 && passwordConfirmation.length > 0 && username.length > 0;
     }
 
     const handleRegistration = async () => {
@@ -103,17 +102,6 @@
         }).finally(() => {
             registering = false;
         });
-    }
-
-    // Simple password hashing function (you should use a proper library like bcrypt)
-    const hashPassword = async (password) => {
-        // This is a basic example - in production, use bcrypt or similar
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hash = await crypto.subtle.digest('SHA-256', data);
-        return Array.from(new Uint8Array(hash))
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('');
     }
 
     const matchesPasswordRequirements = (password) => {
