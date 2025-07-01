@@ -1,17 +1,16 @@
 <script>
     import { MapPin, CalendarDays, ChevronLeft, Heart, MessageSquareMore } from "@lucide/svelte";
-    import { LOCATIONS } from "$lib/locations.js";
     import Rating from "$lib/components/ui/Rating.svelte";
     import { swapBoxService } from '$lib/api/swapbox.service.js';
     import { onMount } from 'svelte';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
 
     let { data } = $props();
     let user = data.user;
     let user_id = user.id;
 
     // Offer ID aus der URL
-    let offer_id = $page.params.id;
+    let offer_id = page.params.id;
 
     // Reactive states
     let offer = $state(null);
@@ -23,14 +22,13 @@
     onMount(async () => {
         try {
             loading = true;
-            
+
             // Offer Details laden
             const offerData = await swapBoxService.getOfferById(offer_id);
             offer = offerData;
 
             // Prüfen ob Favorit
             hasLiked = await swapBoxService.isFavorite(user_id, offer_id);
-            
         } catch (err) {
             error = err.message;
             console.error('Fehler beim Laden des Angebots:', err);
@@ -62,7 +60,7 @@
                 user1_id: user_id,
                 user2_id: offer.user_id
             });
-            
+
             // Zur Chat-Seite weiterleiten
             window.location.href = `/chat/${chatData.id}`;
         } catch (err) {
@@ -145,13 +143,13 @@
                 <p class="text-md ml-1">0</p>
             </div>
         </div>
-        <textarea 
-            class="textarea mt-4 w-full h-32 px-4" 
-            placeholder="Es wurde keine Beschreibung angegeben." 
-            readonly={true} 
+        <textarea
+            class="textarea mt-4 w-full h-32 px-4"
+            placeholder="Es wurde keine Beschreibung angegeben."
+            readonly={true}
             style="resize: none !important;"
         >{offer.description || ''}</textarea>
-        
+
         <p class="mt-4 text-2xl font-bold">Angeboten von</p>
         <a class="flex" href="/profile/{offer.user_id}">
             {#if offer.users?.profile_picture}

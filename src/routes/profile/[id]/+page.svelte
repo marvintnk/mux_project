@@ -1,14 +1,14 @@
 <script>
-    import { OctagonAlert, ChevronLeft } from "@lucide/svelte";
+    import { ChevronLeft } from "@lucide/svelte";
     import Rating from "$lib/components/ui/Rating.svelte";
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
     import InvalidImageModal from "$lib/components/ui/InvalidImageModal.svelte";
     import { swapBoxService } from '$lib/api/swapbox.service.js';
     import { onMount } from 'svelte';
+    import { page } from "$app/state";
 
     let { data } = $props();
-    let user = data.user;
-    let user_id = user.id;
+    let user_id = page.params.id;
 
     // Reactive states
     let currentUser = $state(null);
@@ -20,11 +20,11 @@
     onMount(async () => {
         try {
             loading = true;
-            
+
             // Load current user details
             const userData = await swapBoxService.getUserById(user_id);
             currentUser = userData;
-            
+
             // Load user's offers
             const offersData = await swapBoxService.getOffers({ user_id: user_id });
             myOffers = offersData.map(offer => ({
@@ -42,7 +42,7 @@
                 title: offer.title,
                 offer: offer
             }));
-            
+
         } catch (err) {
             error = err.message;
             console.error('Fehler beim Laden der Benutzerdaten:', err);
@@ -67,7 +67,7 @@
     function getNewProfilePicture() {
         const fileInput = document.getElementById('fileInput');
         const file = fileInput.files[0];
-        
+
         if (file) {
             // Handle profile picture upload
             // This would require additional service methods for profile pictures
@@ -126,10 +126,10 @@
         </div>
 
         <p class="ml-4 text-lg">{currentUser.email}</p>
-        <textarea 
-            class="textarea mt-8 w-full h-32 px-4" 
-            placeholder="Meine Beschreibung" 
-            readonly="true" 
+        <textarea
+            class="textarea mt-8 w-full h-32 px-4"
+            placeholder="Meine Beschreibung"
+            readonly="true"
             style="resize: none !important;"
         >{currentUser.description || ''}</textarea>
     </div>
@@ -140,14 +140,14 @@
         </p>
         <div class="mx-2 mt-5">
             {#each myOffers as item, index}
-                <CategoryCard 
-                    imageData={item.img} 
-                    likes={item.likes} 
-                    location={item.location} 
-                    title={item.title} 
-                    date={item.date} 
-                    href={item.link} 
-                    isDeleteItem={true} 
+                <CategoryCard
+                    imageData={item.img}
+                    likes={item.likes}
+                    location={item.location}
+                    title={item.title}
+                    date={item.date}
+                    href={item.link}
+                    isDeleteItem={true}
                     trashClickFunction={() => deleteOffer(item.id, index)}
                 />
             {/each}
