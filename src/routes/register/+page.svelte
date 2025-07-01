@@ -1,7 +1,7 @@
 <script>
-    import { swapBoxService } from "$lib/api/swapbox.service.js";
     import { goto } from '$app/navigation';
-    
+    import {redirect} from "@sveltejs/kit";
+
     let registering = $state(false);
     let registerButtonUnlocked = $state(false);
     let invalidEmail = $state(false);
@@ -44,7 +44,7 @@
                 document.getElementById("ipassc").innerHTML = "";
             }
         } else {
-            invalidPasswordConfirm = passwordConfirmation.length === 0 ? false : true;
+            invalidPasswordConfirm = passwordConfirmation.length !== 0;
         }
 
         // Email validation
@@ -70,49 +70,39 @@
             document.getElementById("iuser").innerHTML = "";
         }
 
-        registerButtonUnlocked = !invalidEmail && !invalidPasswordConfirm && !invalidPassword && !invalidUsername && 
+        registerButtonUnlocked = !invalidEmail && !invalidPasswordConfirm && !invalidPassword && !invalidUsername &&
                                 email.length > 0 && password.length > 0 && passwordConfirmation.length > 0 && username.length > 0;
     }
 
     const handleRegistration = async () => {
         registering = true;
         registrationError = '';
-        
-        try {
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("pw").value;
-            const username = document.getElementById("username").value;
 
-            // Check if user already exists
-            const existingUser = await swapBoxService.getUserByEmail(email);
-            if (existingUser) {
-                throw new Error('Ein Benutzer mit dieser E-Mail existiert bereits.');
-            }
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("pw").value;
+        const username = document.getElementById("username").value;
 
-            // Hash password (you'll need to implement password hashing)
-            const hashedPassword = await hashPassword(password);
-
-            // Create user record in your database
-            const userData = await swapBoxService.createUser({
-                name: username,
+        await fetch("/api/v1/user/register", {
+            method: "POST",
+            body: JSON.stringify({
                 email: email,
-                password_hash: hashedPassword,
-                verified: false,
-                role: 'student'
-            });
-
-            registrationError = 'success';
-            
-            setTimeout(() => {
-                goto('/login?message=registration-success');
-            }, 2000);
-            
-        } catch (error) {
+                password: password,
+                name: username,
+            })
+        }).then(async response => {
+            if (response.status !== 200) {
+                throw new Error((await response.json()).message);
+            } else {
+                return response;
+            }
+        }).then(() => {
+            throw redirect(301, '/login?message=registration-success');
+        }).catch(error => {
             console.error('Registration error:', error);
             registrationError = error.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
-        } finally {
+        }).finally(() => {
             registering = false;
-        }
+        });
     }
 
     // Simple password hashing function (you should use a proper library like bcrypt)
@@ -186,9 +176,9 @@
             <p id="ipassc" hidden="{!invalidPasswordConfirm}" class="text-error"></p>
 
             <a class="mt-5 text-right w-full link link-info" href="/login">Du hast bereits einen Account?</a>
-            <button 
-                class="btn btn-outline btn-success" 
-                disabled="{!registerButtonUnlocked || registering}" 
+            <button
+                class="btn btn-outline btn-success"
+                disabled="{!registerButtonUnlocked || registering}"
                 onclick={handleRegistration}
             >
                 {#if registering}
