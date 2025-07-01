@@ -1,5 +1,5 @@
-import {swapBoxService} from "$lib/api/swapbox.service.js";
-import {json} from "@sveltejs/kit";
+import { swapBoxService } from "$lib/api/swapbox.service.js";
+import { json } from "@sveltejs/kit";
 
 export async function POST({ request }) {
     const { name, email, password_hash } = await request.json();
