@@ -60,18 +60,18 @@
 
     function formatDate(dateString) {
         const date = new Date(dateString);
-        const options = { 
-            weekday: 'short', 
-            day: '2-digit', 
-            month: '2-digit', 
-            year: 'numeric' 
+        const options = {
+            weekday: 'short',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
         };
         return date.toLocaleDateString('de-DE', options);
     }
 
     function getFirstImage(offer) {
-        return offer.offer_images && offer.offer_images.length > 0 
-            ? offer.offer_images[0].public_url 
+        return offer.offer_images && offer.offer_images.length > 0
+            ? offer.offer_images[0].public_url
             : null;
     }
 
