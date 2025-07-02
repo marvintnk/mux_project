@@ -85,20 +85,17 @@
             method: "POST",
             body: JSON.stringify({
                 email: email,
-                password: password,
+                password_hash: password,
                 name: username,
             })
         }).then(async response => {
             if (response.status !== 200) {
-                throw new Error((await response.json()).message);
+                registrationError = (await response.json()).message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
             } else {
                 return response;
             }
         }).then(() => {
-            throw redirect(301, '/login?message=registration-success');
-        }).catch(error => {
-            console.error('Registration error:', error);
-            registrationError = error.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+            goto('/login?message=registration-success');
         }).finally(() => {
             registering = false;
         });
