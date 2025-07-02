@@ -9,7 +9,6 @@
 | email | VARCHAR (unique) | | Nur Hochschul-Email |
 | password_hash | TEXT | | Passwort-Hash |
 | verified | BOOLEAN | | E-Mail bestätigt |
-| profile_picture | TEXT | | Bild-URL |
 | location | VARCHAR | | Stadtgebiet |
 | rating | FLOAT | | Durchschnittsbewertung |
 | role | VARCHAR | | z. B. student, staff |
@@ -23,9 +22,9 @@
 | user_id | UUID | FK -> users(id) | Anbieter |
 | title | VARCHAR | | Titel |
 | description | TEXT | | Beschreibung |
-| category | VARCHAR | | Kleidung, Bücher, etc. |
-| status | VARCHAR | | verfügbar / reserviert / gelöscht |
-| type | VARCHAR | | tauschen / verschenken / verleihen / event |
+| category | VARCHAR | | Event, Tauschen, Verschenken, Ausleihen |
+| status | VARCHAR | | active, sold |
+| type | VARCHAR | | offer, search |
 | location | VARCHAR | | z. B. Altstadt |
 | created_at | TIMESTAMP | | Datum erstellt |
 | updated_at | TIMESTAMP | | Letzte Änderung |
@@ -47,16 +46,6 @@
 | user_id | UUID | FK -> users(id) | Nutzer |
 | offer_id | UUID | FK -> offers(id) | Merklisteintrag |
 | created_at | TIMESTAMP | | Hinzugefügt am |
-
-## Tabelle: events
-
-| Feldname | Datentyp | Schlüssel | Beschreibung |
-|----------|----------|-----------|--------------|
-| id | SERIAL | PK | Event-ID |
-| offer_id | UUID | FK -> offers(id), unique | 1:1 mit Offer |
-| event_date | TIMESTAMP | | Datum des Events |
-| event_location | VARCHAR | | Veranstaltungsort |
-| description | TEXT | | Detailinfos |
 
 ## Tabelle: chats
 
@@ -91,14 +80,3 @@
 | rating_value | INTEGER | | Wert (1-5) |
 | comment | TEXT | | Optionaler Kommentar |
 | created_at | TIMESTAMP | | Datum der Bewertung |
-
-## Tabelle: reports
-
-| Feldname | Datentyp | Schlüssel | Beschreibung |
-|----------|----------|-----------|--------------|
-| id | SERIAL | PK | Meldungs-ID |
-| reporter_id | UUID | FK -> users(id) | Melder |
-| offer_id | UUID | FK -> offers(id), optional | Angebot |
-| message_id | UUID | FK -> messages(id), optional | Nachricht |
-| reason | TEXT | | Begründung |
-| created_at | TIMESTAMP | | Datum der Meldung |
