@@ -26,7 +26,11 @@
 
 <a class="shadow-sm flex rounded-box" href={href}>
     {#if imageData === null}
-        <div class="skeleton min-h-16 min-w-16 m-2"></div>
+        <div class="avatar avatar-placeholder">
+            <div class="bg-neutral text-neutral-content min-h-16 min-w-16 rounded-box m-2">
+                <span class="text-2xl">{title ? title[0] : "?"}</span>
+            </div>
+        </div>
     {:else}
         <img class="min-h-16 min-w-16 rounded-box m-2" width="16" height="16" src="{imageData}" alt="Event Image">
     {/if}
