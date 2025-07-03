@@ -20,11 +20,11 @@
     onMount(async () => {
         try {
             loading = true;
-            
+
             // Load current user details
             const userData = await swapBoxService.getUserById(user_id);
             currentUser = userData;
-            
+
             // Load user's offers
             const offersData = await swapBoxService.getOffers({ user_id: user_id });
             myOffers = offersData.map(offer => ({
@@ -33,16 +33,11 @@
                 link: `/offer/${offer.id}`,
                 likes: 0, // Could be calculated from favorites table
                 location: offer.location,
-                date: new Date(offer.created_at).toLocaleDateString('de-DE', {
-                    weekday: 'short',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                }),
+                date: new Date(offer.created_at).getTime(),
                 title: offer.title,
                 offer: offer
             }));
-            
+
         } catch (err) {
             error = err.message;
             console.error('Fehler beim Laden der Benutzerdaten:', err);
@@ -67,7 +62,7 @@
     function getNewProfilePicture() {
         const fileInput = document.getElementById('fileInput');
         const file = fileInput.files[0];
-        
+
         if (file) {
             // Handle profile picture upload
             // This would require additional service methods for profile pictures
@@ -126,10 +121,10 @@
         </div>
 
         <p class="ml-4 text-lg">{currentUser.email}</p>
-        <textarea 
-            class="textarea mt-8 w-full h-32 px-4" 
-            placeholder="Meine Beschreibung" 
-            readonly="true" 
+        <textarea
+            class="textarea mt-8 w-full h-32 px-4"
+            placeholder="Meine Beschreibung"
+            readonly="true"
             style="resize: none !important;"
         >{currentUser.description || ''}</textarea>
     </div>
@@ -140,14 +135,14 @@
         </p>
         <div class="mx-2 mt-5">
             {#each myOffers as item, index}
-                <CategoryCard 
-                    imageData={item.img} 
-                    likes={item.likes} 
-                    location={item.location} 
-                    title={item.title} 
-                    date={item.date} 
-                    href={item.link} 
-                    isDeleteItem={true} 
+                <CategoryCard
+                    imageData={item.img}
+                    likes={item.likes}
+                    location={item.location}
+                    title={item.title}
+                    date={item.date}
+                    href={item.link}
+                    isDeleteItem={true}
                     trashClickFunction={() => deleteOffer(item.id, index)}
                 />
             {/each}
