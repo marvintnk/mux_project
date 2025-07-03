@@ -14,6 +14,12 @@
     let loading = $state(true);
     let error = $state(null);
 
+    function getFirstImage(offer) {
+        return offer.offer_images && offer.offer_images.length > 0
+            ? offer.offer_images[0].public_url
+            : null;
+    }
+
     // Favoriten beim Laden der Komponente abrufen
     onMount(async () => {
         try {
@@ -80,6 +86,7 @@
                     href={item.href}
                     hasLiked={true}
                     isFavoriteItem={true}
+                    imageData={getFirstImage(item.offer)}
                     clickFunction={() => idAskDeletion = i}
                 />
             {/each}
