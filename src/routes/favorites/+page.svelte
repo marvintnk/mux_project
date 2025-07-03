@@ -64,7 +64,7 @@
 <div class="flex flex-col {idAskDeletion !== null ? 'blur-xs' : ''}">
     <p class="text-2xl font-bold mx-auto">Favoriten</p>
 
-    <div class="max-h-full mt-10 mx-2 gap-4" style="overflow-y: scroll !important;">
+    <div class="max-h-full mt-10 mx-2 gap-4">
         {#if loading}
             <div class="text-center py-8">
                 <p>Favoriten werden geladen...</p>
@@ -79,16 +79,18 @@
             </div>
         {:else}
             {#each favorites as item, i}
-                <CategoryCard
-                    location={item.location}
-                    title={item.title}
-                    date={item.date}
-                    href={item.href}
-                    hasLiked={true}
-                    isFavoriteItem={true}
-                    imageData={getFirstImage(item.offer)}
-                    clickFunction={() => idAskDeletion = i}
-                />
+                <div class="{i > 0 ? 'mt-4' : ''}">
+                    <CategoryCard
+                        location={item.location}
+                        title={item.title}
+                        date={item.date}
+                        href={item.href}
+                        hasLiked={true}
+                        isFavoriteItem={true}
+                        imageData={getFirstImage(item.offer)}
+                        clickFunction={() => idAskDeletion = i}
+                    />
+                </div>
             {/each}
         {/if}
     </div>
