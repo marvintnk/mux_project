@@ -24,12 +24,7 @@
                 offer_id: favorite.offer_id,
                 location: favorite.offers?.location || 'Unbekannt',
                 title: favorite.offers?.title || 'Kein Titel',
-                date: new Date(favorite.created_at).toLocaleDateString('de-DE', {
-                    weekday: 'short',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                }),
+                date: new Date(favorite.created_at).getTime(),
                 offer: favorite.offers,
                 // Wichtig: href für Navigation hinzufügen
                 href: `/offer/${favorite.offer_id}`
@@ -47,7 +42,7 @@
         try {
             const favorite = favorites[index];
             await swapBoxService.removeFromFavorites(user_id, favorite.offer_id);
-            
+
             // Favorit aus der Liste entfernen
             favorites = favorites.filter((_, i) => i !== index);
             idAskDeletion = null;
@@ -78,13 +73,13 @@
             </div>
         {:else}
             {#each favorites as item, i}
-                <CategoryCard 
-                    location={item.location} 
-                    title={item.title} 
-                    date={item.date} 
+                <CategoryCard
+                    location={item.location}
+                    title={item.title}
+                    date={item.date}
                     href={item.href}
-                    hasLiked={true} 
-                    isFavoriteItem={true} 
+                    hasLiked={true}
+                    isFavoriteItem={true}
                     clickFunction={() => idAskDeletion = i}
                 />
             {/each}
