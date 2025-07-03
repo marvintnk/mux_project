@@ -22,9 +22,6 @@
             clickFunction();
         }
     }
-
-    console.log("IMAGE DATA:")
-    console.log(imageData);
 </script>
 
 <a class="shadow-sm flex rounded-box" href={href}>
