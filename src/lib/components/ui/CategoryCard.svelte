@@ -16,7 +16,8 @@
 
     // Handler für das Entfernen von Favoriten
     function handleRemoveClick(event) {
-        event.stopPropagation(); // Verhindert Event-Bubbling
+        event.stopPropagation();
+        event.preventDefault();
         if (clickFunction) {
             clickFunction();
         }
