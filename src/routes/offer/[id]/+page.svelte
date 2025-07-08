@@ -1,10 +1,11 @@
 <script>
     import { MapPin, CalendarDays, ChevronLeft, Heart, MessageSquareMore } from "@lucide/svelte";
-    import Rating from "$lib/components/ui/Rating.svelte";
-    import { swapBoxService } from '$lib/api/swapbox.service.js';
     import { onMount } from 'svelte';
     import { page } from '$app/state';
+    import { swapBoxService } from "../../../lib/api/swapbox.service.js";
+    import Rating from "../../../lib/components/ui/Rating.svelte";
 
+    // @ts-ignore
     let { data } = $props();
     let user = data.user;
     let user_id = user.id;
@@ -28,6 +29,7 @@
             offer = offerData;
 
             // Prüfen ob Favorit
+            // @ts-ignore
             hasLiked = await swapBoxService.isFavorite(user_id, offer_id);
         } catch (err) {
             error = err.message;
