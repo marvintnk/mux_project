@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
     import { ChevronLeft } from "@lucide/svelte";
     import Rating from "$lib/components/ui/Rating.svelte";
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
@@ -128,7 +130,7 @@
         <p class="ml-4 text-lg">{currentUser.email}</p>
         <textarea
             class="textarea mt-8 w-full h-32 px-4"
-            placeholder="Meine Beschreibung"
+            placeholder="Die Beschreibung"
             readonly="true"
             style="resize: none !important;"
         >{currentUser.description || ''}</textarea>

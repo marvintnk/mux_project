@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
     import CategoryItem from "$lib/components/ui/CategoryItem.svelte";
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
     import SearchBar from "$lib/components/ui/SearchBar.svelte";

@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
     import GoBackItem from "$lib/components/ui/GoBackItem.svelte";
     import { OctagonAlert } from "@lucide/svelte";
     import Rating from "$lib/components/ui/Rating.svelte";

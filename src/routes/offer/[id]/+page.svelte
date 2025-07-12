@@ -108,8 +108,8 @@
     {#if offer.offer_images && offer.offer_images.length > 0}
         <div class="carousel w-full">
             {#each offer.offer_images as image, i}
-                <div id="item{i + 1}" class="carousel-item w-full">
-                    <img src="{image.public_url}" class="w-full" alt="Angebotsbild {i + 1}" />
+                <div id="item{i + 1}" class="carousel-item w-full flex items-center justify-center">
+                    <img src="{image.public_url}" class=" w-full max-w-[800px]" alt="Angebotsbild {i + 1}" />
                 </div>
             {/each}
         </div>
@@ -176,7 +176,7 @@
         {#if offer.user_id !== user_id}
             <button class="flex btn w-full" on:click={startChat}>
                 <MessageSquareMore size={20} class="mt-1 mr-1" />
-                <p>Frage stellen</p>
+                <p>Chat starten</p>
             </button>
         {:else}
             <div class="alert alert-info">

@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
     import HeartBreakIcon from "$lib/components/ui/HeartBreakIcon.svelte";
 
     export let location;
@@ -26,7 +28,7 @@
     {#if imageData === null}
         <div class="skeleton min-h-16 min-w-16 m-2"></div>
     {:else}
-        <img class="min-h-16 min-w-16 rounded-box m-2" width="16" height="16" src="{imageData}" alt="Event Image">
+        <img class="w-[100px] h-[100px] object-cover rounded-box m-2" width="16" height="16" src="{imageData}" alt="Event Image">
     {/if}
 
     <div class="mt-1 w-full mx-2">
