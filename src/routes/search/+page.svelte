@@ -1,5 +1,5 @@
 <script>
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { onMount } from 'svelte';
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
     import SearchBar from "$lib/components/ui/SearchBar.svelte";
@@ -18,9 +18,9 @@
 
     // $effect für URL-Parameter (erweitert um Kategorie)
     $effect(() => {
-        const query = $page.url.searchParams.get('q');
-        const category = $page.url.searchParams.get('category');
-        
+        const query = page.url.searchParams.get('q');
+        const category = page.url.searchParams.get('category');
+
         // Suchanfrage setzen
         if (query) {
             searchQuery = query;
@@ -30,7 +30,7 @@
         } else {
             searchQuery = '';
         }
-        
+
         // Kategorie setzen (nur wenn sie existiert)
         if (category && CATEGORIES.some(cat => cat.name === category)) {
             selectedCategory = category;
@@ -45,15 +45,15 @@
             let filtered = selectedCategory === 'Alle'
                 ? allOffers
                 : allOffers.filter(offer => offer.category === selectedCategory);
-            
+
             if (searchQuery.trim() !== '') {
-                filtered = filtered.filter(offer => 
+                filtered = filtered.filter(offer =>
                     offer.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     offer.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     offer.location?.toLowerCase().includes(searchQuery.toLowerCase())
                 );
             }
-            
+
             return filtered;
         })()
     );
@@ -62,7 +62,7 @@
     $effect(() => {
         const filtered = filteredOffers;
         const batch = currentBatch;
-        
+
         if (filtered && filtered.length > 0) {
             const itemsToShow = batch * batchSize;
             visibleOffers = filtered.slice(0, itemsToShow);
@@ -73,8 +73,8 @@
 
     async function loadOffers() {
         try {
-            const offerData = await swapBoxService.getOffers({ 
-                status: 'active' 
+            const offerData = await swapBoxService.getOffers({
+                status: 'active'
             });
             allOffers = offerData;
         } catch (error) {
@@ -104,11 +104,11 @@
 
     function formatDate(dateString) {
         const date = new Date(dateString);
-        const options = { 
-            weekday: 'short', 
-            day: '2-digit', 
-            month: '2-digit', 
-            year: 'numeric' 
+        const options = {
+            weekday: 'short',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
         };
         return date.toLocaleDateString('de-DE', options);
     }
@@ -121,7 +121,7 @@
         selectedCategory = category;
         currentBatch = 1;
         dropdownOpen = false;
-        
+
         // URL aktualisieren
         const url = new URL(window.location);
         if (category !== 'Alle') {
@@ -135,7 +135,7 @@
     function handleSearch(event) {
         searchQuery = event.detail.query;
         currentBatch = 1;
-        
+
         // URL aktualisieren (beide Parameter berücksichtigen)
         const url = new URL(window.location);
         if (searchQuery.trim() !== '') {
@@ -143,19 +143,19 @@
         } else {
             url.searchParams.delete('q');
         }
-        
+
         // Kategorie-Parameter beibehalten
         if (selectedCategory !== 'Alle') {
             url.searchParams.set('category', selectedCategory);
         }
-        
+
         window.history.replaceState({}, '', url);
     }
 
     onMount(async () => {
         await loadOffers();
         window.addEventListener("scroll", handleScroll);
-        
+
         // Initial search value setzen
         const initialQuery = $page.url.searchParams.get('q') || '';
         if (initialQuery) {
@@ -164,7 +164,7 @@
                 searchBarComponent.setSearchValue(initialQuery);
             }
         }
-        
+
         return () => window.removeEventListener("scroll", handleScroll);
     });
 </script>
@@ -233,7 +233,7 @@
     {/if}
 
     {#if visibleOffers.length < filteredOffers.length && !loading}
-        <button 
+        <button
             class="btn btn-outline mx-auto"
             on:click={loadMore}>
             Mehr laden ({filteredOffers.length - visibleOffers.length} weitere)

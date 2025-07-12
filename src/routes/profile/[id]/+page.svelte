@@ -1,14 +1,14 @@
 <script>
-    import { OctagonAlert, ChevronLeft } from "@lucide/svelte";
+    import { ChevronLeft } from "@lucide/svelte";
     import Rating from "$lib/components/ui/Rating.svelte";
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
     import InvalidImageModal from "$lib/components/ui/InvalidImageModal.svelte";
     import { swapBoxService } from '$lib/api/swapbox.service.js';
     import { onMount } from 'svelte';
+    import { page } from "$app/state";
 
     let { data } = $props();
-    let user = data.user;
-    let user_id = user.id;
+    let user_id = page.params.id;
 
     // Reactive states
     let currentUser = $state(null);

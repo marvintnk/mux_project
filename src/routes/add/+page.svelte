@@ -8,8 +8,6 @@
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
 
-
-
     let images = $state([]);
     let imageFiles = $state([]); // Speichert die tatsächlichen File-Objekte
     let videoStream = $state(false);
@@ -17,7 +15,7 @@
 
     // Data aus dem Server Load
     let { data } = $props();
-    
+
     // Formulardaten
     let formData = $state({
         title: "",
@@ -66,12 +64,12 @@
 
         const context = canvas.getContext('2d');
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
+
         // Canvas zu Blob konvertieren
         canvas.toBlob((blob) => {
             const file = new File([blob], `camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
             imageFiles.push(file);
-            
+
             const base64 = canvas.toDataURL("image/jpeg");
             images.push(base64);
         }, 'image/jpeg', 0.8);
@@ -93,7 +91,7 @@
         files.forEach(file => {
             if (file.type.startsWith("image/")) {
                 imageFiles.push(file);
-                
+
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = function () {
@@ -103,7 +101,7 @@
                 document.getElementById("modal_invalid_datatype").showModal();
             }
         });
-        
+
         // Input zurücksetzen
         element.value = "";
     }
@@ -134,9 +132,9 @@
 
     const submitOffer = async () => {
         if (!validateForm()) return;
-        
+
         isLoading = true;
-        
+
         try {
             // 1. Angebot erstellen
             const offerData = {
@@ -150,17 +148,17 @@
             };
 
             const createdOffer = await swapBoxService.createOffer(offerData);
-            
+
             // 2. Bilder hochladen (falls vorhanden)
             if (imageFiles.length > 0) {
                 const uploadResult = await swapBoxService.uploadMultipleOfferImages(
-                    createdOffer.id, 
-                    imageFiles, 
+                    createdOffer.id,
+                    imageFiles,
                     user.id
                 );
-                
+
                 console.log(`${uploadResult.successCount} von ${uploadResult.total} Bildern erfolgreich hochgeladen`);
-                
+
                 if (uploadResult.failed.length > 0) {
                     console.warn("Einige Bilder konnten nicht hochgeladen werden:", uploadResult.failed);
                 }
@@ -238,12 +236,12 @@
 
 <div class="mx-10 mt-5 flex">
     <div class="flex w-full">
-        <input type="radio" name="action-type" class="radio mr-2 radio-accent" 
+        <input type="radio" name="action-type" class="radio mr-2 radio-accent"
                bind:group={formData.type} value="offer" />
         Ich biete
     </div>
     <div class="flex w-full">
-        <input type="radio" name="action-type" class="radio mr-2 radio-accent" 
+        <input type="radio" name="action-type" class="radio mr-2 radio-accent"
                bind:group={formData.type} value="suche" style="margin-left: auto;" />
         Ich suche
     </div>
@@ -251,23 +249,23 @@
 
 <div class="mx-4 mt-4">
     <div class="flex justify-center input w-full">
-        <input id="title" type="text" maxlength="80" placeholder="Titel" 
+        <input id="title" type="text" maxlength="80" placeholder="Titel"
                bind:value={formData.title} oninput={() => updateTitleCounter()}>
     </div>
     <div class="flex">
         <p id="title_counter" style="margin-left: auto !important;">0/80</p>
     </div>
-    
+
     <select class="select mt-2 w-full" bind:value={formData.category}>
         <option disabled value="">Kategorie auswählen</option>
         {#each CATEGORIES as item}
             <option value={item.name}>{item.name}</option>
         {/each}
     </select>
-    
-    <textarea class="textarea mt-8 w-full h-32 px-4" placeholder="Beschreibung" 
+
+    <textarea class="textarea mt-8 w-full h-32 px-4" placeholder="Beschreibung"
               bind:value={formData.description} style="resize: none !important;"></textarea>
-    
+
     <select class="select mt-8 w-full" bind:value={formData.location}>
         <option disabled value="">Ort auswählen</option>
         {#each LOCATIONS as item}
@@ -275,8 +273,8 @@
         {/each}
     </select>
 
-    <button class="w-full btn btn-accent mt-8 mb-4" 
-            onclick={() => submitOffer()} 
+    <button class="w-full btn btn-accent mt-8 mb-4"
+            onclick={() => submitOffer()}
             disabled={isLoading}>
         {#if isLoading}
             <span class="loading loading-spinner"></span>

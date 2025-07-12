@@ -1,6 +1,7 @@
 <script>
-    import { swapBoxService } from "$lib/api/swapbox.service.js";
     import { goto } from '$app/navigation';
+    import {redirect} from "@sveltejs/kit";
+
 
     let registering = $state(false);
     let registerButtonUnlocked = $state(false);
@@ -44,7 +45,7 @@
                 document.getElementById("ipassc").innerHTML = "";
             }
         } else {
-            invalidPasswordConfirm = passwordConfirmation.length === 0 ? false : true;
+            invalidPasswordConfirm = passwordConfirmation.length !== 0;
         }
 
         // Email validation
@@ -70,13 +71,14 @@
             document.getElementById("iuser").innerHTML = "";
         }
 
-        registerButtonUnlocked = !invalidEmail && !invalidPasswordConfirm && !invalidPassword && !invalidUsername &&
-                                email.length > 0 && password.length > 0 && passwordConfirmation.length > 0 && username.length > 0;
+
+        registerButtonUnlocked = !invalidEmail && !invalidPasswordConfirm && !invalidPassword && !invalidUsername && email.length > 0 && password.length > 0 && passwordConfirmation.length > 0 && username.length > 0;
     }
 
     const handleRegistration = async () => {
         registering = true;
         registrationError = '';
+
 
         try {
             const email = document.getElementById("email").value;
@@ -89,12 +91,14 @@
                 throw new Error('Ein Benutzer mit dieser E-Mail existiert bereits.');
             }
 
-            // Hash password (you'll need to implement password hashing)
-            const hashedPassword = await hashPassword(password);
 
-            // Create user record in your database
-            const userData = await swapBoxService.createUser({
-                name: username,
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("pw").value;
+        const username = document.getElementById("username").value;
+
+        await fetch("/api/v1/user/register", {
+            method: "POST",
+            body: JSON.stringify({
                 email: email,
                 password_hash: hashedPassword,
                 verified: true,
@@ -112,18 +116,7 @@
             registrationError = error.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
         } finally {
             registering = false;
-        }
-    }
-
-    // Simple password hashing function (you should use a proper library like bcrypt)
-    const hashPassword = async (password) => {
-        // This is a basic example - in production, use bcrypt or similar
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hash = await crypto.subtle.digest('SHA-256', data);
-        return Array.from(new Uint8Array(hash))
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('');
+        });
     }
 
     const matchesPasswordRequirements = (password) => {
