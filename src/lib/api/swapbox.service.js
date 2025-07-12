@@ -367,6 +367,30 @@ class SwapBoxService {
     }));
   }
 
+  async getFavoritesByOffer(offer_id) {
+    const { data, error } = await supabase
+      .from('favorites')
+      .select(`
+        *
+      `)
+      .eq('offer_id', offer_id)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    // Add public URLs to offer images
+    return data.map(favorite => ({
+      ...favorite,
+      offers: {
+        ...favorite.offers,
+        offer_images: favorite.offers?.offer_images?.map(image => ({
+          ...image,
+          public_url: supabase.storage.from('offer-images').getPublicUrl(image.image_url).data.publicUrl
+        })) || []
+      }
+    }));
+  }
+
   async addToFavorites(userId, offerId) {
     const { data, error } = await supabase
       .from('favorites')

@@ -114,7 +114,6 @@
     {#each events as event}
         <CategoryCard
             imageData={getFirstImage(event)}
-            likes={0}
             location={event.location}
             title={event.title}
             date={new Date(event.created_at).getTime()}
@@ -130,7 +129,6 @@
     {#each visibleOffers as offer}
         <CategoryCard
             imageData={getFirstImage(offer)}
-            likes={0}
             location={offer.location}
             title={offer.title}
             date={new Date(offer.created_at).getTime()}
