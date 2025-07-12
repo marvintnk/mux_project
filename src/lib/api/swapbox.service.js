@@ -224,9 +224,13 @@ class SwapBoxService {
         throw new Error('Dateityp nicht unterstützt. Nur JPEG, PNG und WebP erlaubt.');
       }
 
-      // Generate unique filename
+      // Dateiname zerlegen
+      const originalNameWithoutExt = file.name.replace(/\.[^/.]+$/, ""); // entfernt .png, .jpg etc.
       const fileExtension = file.name.split('.').pop();
-      const fileName = `${offerId}/${userId}_${Date.now()}.${fileExtension}`;
+
+      // Neuen Dateinamen bauen
+      const fileName = `${offerId}/${userId}_${originalNameWithoutExt}.${fileExtension}`;
+
 
       // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -346,6 +350,30 @@ class SwapBoxService {
         offers(*, users:user_id(name), offer_images(id, image_url, uploaded_at))
       `)
       .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    // Add public URLs to offer images
+    return data.map(favorite => ({
+      ...favorite,
+      offers: {
+        ...favorite.offers,
+        offer_images: favorite.offers?.offer_images?.map(image => ({
+          ...image,
+          public_url: supabase.storage.from('offer-images').getPublicUrl(image.image_url).data.publicUrl
+        })) || []
+      }
+    }));
+  }
+
+  async getFavoritesByOffer(offer_id) {
+    const { data, error } = await supabase
+      .from('favorites')
+      .select(`
+        *
+      `)
+      .eq('offer_id', offer_id)
       .order('created_at', { ascending: false });
     
     if (error) throw error;

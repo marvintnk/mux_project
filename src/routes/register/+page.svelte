@@ -2,6 +2,7 @@
     import { goto } from '$app/navigation';
     import {redirect} from "@sveltejs/kit";
 
+
     let registering = $state(false);
     let registerButtonUnlocked = $state(false);
     let invalidEmail = $state(false);
@@ -70,12 +71,26 @@
             document.getElementById("iuser").innerHTML = "";
         }
 
+
         registerButtonUnlocked = !invalidEmail && !invalidPasswordConfirm && !invalidPassword && !invalidUsername && email.length > 0 && password.length > 0 && passwordConfirmation.length > 0 && username.length > 0;
     }
 
     const handleRegistration = async () => {
         registering = true;
         registrationError = '';
+
+
+        try {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("pw").value;
+            const username = document.getElementById("username").value;
+
+            // Check if user already exists
+            const existingUser = await swapBoxService.getUserByEmail(email);
+            if (existingUser) {
+                throw new Error('Ein Benutzer mit dieser E-Mail existiert bereits.');
+            }
+
 
         const email = document.getElementById("email").value;
         const password = document.getElementById("pw").value;
@@ -85,18 +100,21 @@
             method: "POST",
             body: JSON.stringify({
                 email: email,
-                password_hash: password,
-                name: username,
-            })
-        }).then(async response => {
-            if (response.status !== 200) {
-                registrationError = (await response.json()).message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
-            } else {
-                return response;
-            }
-        }).then(() => {
-            goto('/login?message=registration-success');
-        }).finally(() => {
+                password_hash: hashedPassword,
+                verified: true,
+                role: 'student'
+            });
+
+            registrationError = 'success';
+
+            setTimeout(() => {
+                goto('/login?message=registration-success');
+            }, 2000);
+
+        } catch (error) {
+            console.error('Registration error:', error);
+            registrationError = error.message || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+        } finally {
             registering = false;
         });
     }
