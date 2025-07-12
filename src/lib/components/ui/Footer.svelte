@@ -40,7 +40,7 @@
             
             <span class="indicator">
                 <MessageCircleMore size="1.2em"/>
-                <span class="badge badge-accent badge-xs shadow-sm indicator-item">3</span>
+                <!-- <span class="badge badge-accent badge-xs shadow-sm indicator-item"></span> -->
             </span>
             <span class="dock-label font-bold">Chat</span>
         </button>
