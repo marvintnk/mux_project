@@ -11,6 +11,7 @@
     import { swapBoxService } from "../../../lib/api/swapbox.service.js";
     import Rating from "../../../lib/components/ui/Rating.svelte";
     import { CATEGORIES } from "$lib/categories.js";
+    import { browser } from '$app/environment';
 
     // @ts-ignore
     let { data } = $props();
@@ -39,6 +40,12 @@
     function getCategoryIcon(categoryName) {
         const cat = CATEGORIES.find((c) => c.name === categoryName);
         return cat ? cat.icon : null;
+    }
+
+    function goBack() {
+        if (browser) {
+            window.history.back();
+        }
     }
 
     // Offer laden
@@ -134,9 +141,9 @@
     </div>
 {:else if offer}
     <div class="flex m-2">
-        <a class="shadow-sm rounded-box p-1" href="/">
+        <button class="shadow-sm rounded-box p-1" on:click={goBack}>
             <ChevronLeft size={24} />
-        </a>
+        </button>
         <button
             class="shadow-sm rounded-box p-1"
             style="margin-left: auto !important;"
