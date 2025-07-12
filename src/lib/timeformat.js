@@ -16,7 +16,7 @@ export class TimeFormat {
             return prefix + " " + a + " Stunde" + (a > 1 ? "n" : "");
         } else {
             const a = parseInt("" + diff / (1000 * 60 * 60 * 24));
-            return prefix + " " + a + " Tag" + (a > 1 ? "e" : "");
+            return prefix + " " + a + " Tag" + (a > 1 ? "en" : "");
         }
     }
 }
