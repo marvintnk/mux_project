@@ -5,6 +5,7 @@
     import { CATEGORIES } from "$lib/categories.js";
     import { onMount } from "svelte";
     import { swapBoxService } from '$lib/api/swapbox.service.js';
+    import GreenGradientText from "$lib/components/ui/GreenGradientText.svelte";
 
     let events = $state([]);
     let allOffers = $state([]);
@@ -82,6 +83,16 @@
     });
 </script>
 
+<div class="flex justify-center mt-2">
+    <div class="avatar">
+        <div class="w-32">
+            <img src="/android-chrome-512x512.png">
+        </div>
+    </div>
+</div>
+
+<GreenGradientText text="Swapbox" additionalClasses="text-2xl font-bold text-center"/>
+
 <SearchBar />
 
 
@@ -105,7 +116,7 @@
             likes={0}
             location={event.location}
             title={event.title}
-            date={formatDate(event.created_at)}
+            date={new Date(event.created_at).getTime()}
             href="/offer/{event.id}"
             hasLiked={false}
         />
@@ -121,7 +132,7 @@
             likes={0}
             location={offer.location}
             title={offer.title}
-            date={formatDate(offer.created_at)}
+            date={new Date(offer.created_at).getTime()}
             href="/offer/{offer.id}"
             hasLiked={false}
         />

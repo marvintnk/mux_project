@@ -33,12 +33,7 @@
                 link: `/offer/${offer.id}`,
                 likes: 0, // Could be calculated from favorites table
                 location: offer.location,
-                date: new Date(offer.created_at).toLocaleDateString('de-DE', {
-                    weekday: 'short',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                }),
+                date: new Date(offer.created_at).getTime(),
                 title: offer.title,
                 offer: offer
             }));

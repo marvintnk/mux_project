@@ -14,6 +14,12 @@
     let loading = $state(true);
     let error = $state(null);
 
+    function getFirstImage(offer) {
+        return offer.offer_images && offer.offer_images.length > 0
+            ? offer.offer_images[0].public_url
+            : null;
+    }
+
     // Favoriten beim Laden der Komponente abrufen
     onMount(async () => {
         try {
@@ -24,12 +30,7 @@
                 offer_id: favorite.offer_id,
                 location: favorite.offers?.location || 'Unbekannt',
                 title: favorite.offers?.title || 'Kein Titel',
-                date: new Date(favorite.created_at).toLocaleDateString('de-DE', {
-                    weekday: 'short',
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                }),
+                date: new Date(favorite.created_at).getTime(),
                 offer: favorite.offers,
                 // Wichtig: href für Navigation hinzufügen
                 href: `/offer/${favorite.offer_id}`
@@ -47,7 +48,7 @@
         try {
             const favorite = favorites[index];
             await swapBoxService.removeFromFavorites(user_id, favorite.offer_id);
-            
+
             // Favorit aus der Liste entfernen
             favorites = favorites.filter((_, i) => i !== index);
             idAskDeletion = null;
@@ -63,7 +64,7 @@
 <div class="flex flex-col {idAskDeletion !== null ? 'blur-xs' : ''}">
     <p class="text-2xl font-bold mx-auto">Favoriten</p>
 
-    <div class="max-h-full mt-10 mx-2 gap-4" style="overflow-y: scroll !important;">
+    <div class="max-h-full mt-10 mx-2 gap-4">
         {#if loading}
             <div class="text-center py-8">
                 <p>Favoriten werden geladen...</p>
@@ -78,15 +79,18 @@
             </div>
         {:else}
             {#each favorites as item, i}
-                <CategoryCard 
-                    location={item.location} 
-                    title={item.title} 
-                    date={item.date} 
-                    href={item.href}
-                    hasLiked={true} 
-                    isFavoriteItem={true} 
-                    clickFunction={() => idAskDeletion = i}
-                />
+                <div class="{i > 0 ? 'mt-4' : ''}">
+                    <CategoryCard
+                        location={item.location}
+                        title={item.title}
+                        date={item.date}
+                        href={item.href}
+                        hasLiked={true}
+                        isFavoriteItem={true}
+                        imageData={getFirstImage(item.offer)}
+                        clickFunction={() => idAskDeletion = i}
+                    />
+                </div>
             {/each}
         {/if}
     </div>
