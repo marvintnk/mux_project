@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
     export let rating;
     export let editable = false;
     export let ratingSizeClass = "rating-lg";

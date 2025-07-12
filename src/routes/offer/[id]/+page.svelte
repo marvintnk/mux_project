@@ -159,6 +159,7 @@
 
     {#if sortedImages.length > 0}
         <div class="carousel w-full">
+
             {#each sortedImages as image, i}
                 <div id="item{i + 1}" class="carousel-item w-full">
                     <img
@@ -267,7 +268,7 @@
         {#if offer.user_id !== user_id}
             <button class="flex btn w-full" on:click={startChat}>
                 <MessageSquareMore size={20} class="mt-1 mr-1" />
-                <p>Frage stellen</p>
+                <p>Chat starten</p>
             </button>
         {:else}
             <div class="alert alert-info">

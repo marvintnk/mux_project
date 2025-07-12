@@ -428,7 +428,7 @@ class SwapBoxService {
   }
 
   // ========== CHATS ==========
-  async getChats(userId) {
+   async getChats(userId) {
     const { data, error } = await supabase
       .from('chats')
       .select(`
@@ -441,7 +441,10 @@ class SwapBoxService {
       .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching chats:', error);
+      throw error;
+    }
     
     // Add last message and unread count to each chat
     return data.map(chat => {
@@ -458,7 +461,6 @@ class SwapBoxService {
       };
     });
   }
-
   async getChatById(id) {
     const { data, error } = await supabase
       .from('chats')
@@ -471,7 +473,10 @@ class SwapBoxService {
       .eq('id', id)
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching chat:', error);
+      throw error;
+    }
     return data;
   }
 
@@ -503,7 +508,7 @@ class SwapBoxService {
   }
 
   // ========== MESSAGES ==========
-  async getMessages(chatId) {
+async getMessages(chatId) {
     const { data, error } = await supabase
       .from('messages')
       .select(`
@@ -513,7 +518,10 @@ class SwapBoxService {
       .eq('chat_id', chatId)
       .order('sent_at', { ascending: true });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching messages:', error);
+      throw error;
+    }
     
     // Add public URLs for message images
     return data.map(message => ({
@@ -524,7 +532,8 @@ class SwapBoxService {
     }));
   }
 
-  async sendMessage(messageData) {
+
+   async sendMessage(messageData) {
     const { data, error } = await supabase
       .from('messages')
       .insert([{
@@ -533,10 +542,16 @@ class SwapBoxService {
         content: messageData.content,
         image_url: messageData.image_url || null
       }])
-      .select()
+      .select(`
+        *,
+        sender:sender_id(name)
+      `)
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    }
     
     // Add public URL if image exists
     return {
@@ -616,18 +631,24 @@ class SwapBoxService {
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error marking message as read:', error);
+      throw error;
+    }
     return data;
   }
 
-  async markChatMessagesAsRead(chatId, userId) {
+async markChatMessagesAsRead(chatId, userId) {
     const { error } = await supabase
       .from('messages')
       .update({ read: true })
       .eq('chat_id', chatId)
       .neq('sender_id', userId);
     
-    if (error) throw error;
+    if (error) {
+      console.error('Error marking chat messages as read:', error);
+      throw error;
+    }
     return true;
   }
 
@@ -656,7 +677,6 @@ class SwapBoxService {
         from_user_id: ratingData.from_user_id,
         to_user_id: ratingData.to_user_id,
         rating_value: ratingData.rating_value,
-        comment: ratingData.comment || null
       }])
       .select()
       .single();
@@ -740,10 +760,10 @@ class SwapBoxService {
     };
   }
 
-  // Real-time subscriptions
-  subscribeToMessages(chatId, callback) {
-    return supabase
-      .channel(`messages:${chatId}`)
+// Real-time subscriptions
+ subscribeToMessages(chatId, callback) {
+    const channel = supabase
+      .channel(`messages-${chatId}`)
       .on('postgres_changes', 
         { 
           event: 'INSERT', 
@@ -751,28 +771,69 @@ class SwapBoxService {
           table: 'messages',
           filter: `chat_id=eq.${chatId}`
         }, 
-        callback
-      )
-      .subscribe();
-  }
+        async (payload) => {
+          console.log('Real-time message received:', payload);
+          
+          try {
+            // Fetch the complete message with sender info
+            const { data: completeMessage, error } = await supabase
+              .from('messages')
+              .select(`
+                *,
+                sender:sender_id(name)
+              `)
+              .eq('id', payload.new.id)
+              .single();
 
-  subscribeToOffers(callback) {
-    return supabase
-      .channel('offers')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'offers'
-        }, 
-        callback
+            if (!error && completeMessage) {
+              // Add public URL for image if exists
+              const messageWithUrl = {
+                ...completeMessage,
+                image_public_url: completeMessage.image_url 
+                  ? supabase.storage.from('message-images').getPublicUrl(completeMessage.image_url).data.publicUrl 
+                  : null
+              };
+              
+              callback(messageWithUrl);
+            } else {
+              console.error('Error fetching complete message:', error);
+              // Fallback to basic payload
+              const messageWithUrl = {
+                ...payload.new,
+                image_public_url: payload.new.image_url 
+                  ? supabase.storage.from('message-images').getPublicUrl(payload.new.image_url).data.publicUrl 
+                  : null
+              };
+              callback(messageWithUrl);
+            }
+          } catch (err) {
+            console.error('Error in real-time subscription:', err);
+            // Fallback to basic payload
+            const messageWithUrl = {
+              ...payload.new,
+              image_public_url: payload.new.image_url 
+                ? supabase.storage.from('message-images').getPublicUrl(payload.new.image_url).data.publicUrl 
+                : null
+            };
+            callback(messageWithUrl);
+          }
+        }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to real-time messages');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('Error subscribing to real-time messages');
+        }
+      });
+    
+    return channel;
   }
-
-  unsubscribe(subscription) {
+// Update the unsubscribe method:
+ unsubscribe(subscription) {
     if (subscription) {
-      supabase.removeChannel(subscription);
+      subscription.unsubscribe();
     }
   }
 }
