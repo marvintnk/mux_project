@@ -19,6 +19,15 @@
     let error = $state(null);
     let hasLiked = $state(false);
 
+    // Sortierte Bilder
+    let sortedImages = [];
+
+    // Funktion zum Extrahieren der letzten Zahl vor der Dateiendung
+    function getImageOrderNumber(name) {
+        const match = name.match(/(\d+)(?=\.\w+$)/);
+        return match ? parseInt(match[1], 10) : 0;
+    }
+
     // Offer laden
     onMount(async () => {
         try {
@@ -27,6 +36,13 @@
             // Offer Details laden
             const offerData = await swapBoxService.getOfferById(offer_id);
             offer = offerData;
+
+            // Bilder sortieren
+            if (offer?.offer_images?.length > 0) {
+                sortedImages = [...offer.offer_images].sort(
+                    (a, b) => getImageOrderNumber(a.image_url) - getImageOrderNumber(b.image_url)
+                );
+            }
 
             // Prüfen ob Favorit
             // @ts-ignore
@@ -82,6 +98,7 @@
     }
 </script>
 
+
 {#if loading}
     <div class="flex justify-center items-center h-64">
         <div class="loading loading-spinner loading-lg"></div>
@@ -105,21 +122,22 @@
         </button>
     </div>
 
-    {#if offer.offer_images && offer.offer_images.length > 0}
-        <div class="carousel w-full">
-            {#each offer.offer_images as image, i}
-                <div id="item{i + 1}" class="carousel-item w-full">
-                    <img src="{image.public_url}" class="w-full" alt="Angebotsbild {i + 1}" />
-                </div>
-            {/each}
-        </div>
+    {#if sortedImages.length > 0}
+    <div class="carousel w-full">
+        {#each sortedImages as image, i}
+            <div id="item{i + 1}" class="carousel-item w-full">
+                <img src="{image.public_url}" class="w-full" alt="Angebotsbild {i + 1}" />
+            </div>
+        {/each}
+    </div>
 
-        <div class="flex w-full justify-center gap-2 pt-2">
-            {#each offer.offer_images as image, i}
-                <a href="#item{i + 1}" class="btn btn-xs w-8 h-8">{i + 1}</a>
-            {/each}
-        </div>
-    {/if}
+    <div class="flex w-full justify-center gap-2 pt-2">
+        {#each sortedImages as image, i}
+            <a href="#item{i + 1}" class="btn btn-xs w-8 h-8">{i + 1}</a>
+        {/each}
+    </div>
+{/if}
+
 
     <div class="mx-2 mt-5">
         <p class="text-2xl font-bold">{offer.title}</p>

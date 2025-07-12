@@ -224,9 +224,13 @@ class SwapBoxService {
         throw new Error('Dateityp nicht unterstützt. Nur JPEG, PNG und WebP erlaubt.');
       }
 
-      // Generate unique filename
+      // Dateiname zerlegen
+      const originalNameWithoutExt = file.name.replace(/\.[^/.]+$/, ""); // entfernt .png, .jpg etc.
       const fileExtension = file.name.split('.').pop();
-      const fileName = `${offerId}/${userId}_${Date.now()}.${fileExtension}`;
+
+      // Neuen Dateinamen bauen
+      const fileName = `${offerId}/${userId}_${originalNameWithoutExt}.${fileExtension}`;
+
 
       // Upload to Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage

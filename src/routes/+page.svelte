@@ -83,14 +83,15 @@
     });
 </script>
 
-<div class="flex justify-center mt-2">
+<!-- <div class="flex justify-center mt-2">
     <div class="avatar">
         <div class="w-32">
             <img src="/android-chrome-512x512.png">
         </div>
     </div>
-</div>
+</div> -->
 
+<div class="mt-6"></div>
 <GreenGradientText text="Swapbox" additionalClasses="text-2xl font-bold text-center"/>
 
 <SearchBar />
