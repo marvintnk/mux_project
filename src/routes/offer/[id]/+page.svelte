@@ -27,6 +27,7 @@
     let error = $state(null);
     let hasLiked = $state(false);
     let favoritesCount = $state(0);
+    let clickedToggleImageCount = $state(0);
 
     // Sortierte Bilder
     let sortedImages = [];
@@ -44,7 +45,7 @@
 
     function goBack() {
         if (browser) {
-            window.history.back();
+            window.history.go(-(clickedToggleImageCount + 1));
         }
     }
 
@@ -82,7 +83,7 @@
         } finally {
             loading = false;
         }
-        
+
     });
 
     // Favorit hinzufügen/entfernen
@@ -141,13 +142,13 @@
     </div>
 {:else if offer}
     <div class="flex m-2">
-        <button class="shadow-sm rounded-box p-1" on:click={goBack}>
+        <button class="shadow-sm rounded-box p-1" onclick={goBack}>
             <ChevronLeft size={24} />
         </button>
         <button
             class="shadow-sm rounded-box p-1"
             style="margin-left: auto !important;"
-            on:click={toggleFavorite}
+            onclick={toggleFavorite}
         >
             {#if hasLiked}
                 <Heart size={24} fill="#eb4034" color="#eb4034" />
@@ -173,7 +174,7 @@
 
         <div class="flex w-full justify-center gap-2 pt-2">
             {#each sortedImages as image, i}
-                <a href="#item{i + 1}" class="btn btn-xs w-8 h-8">{i + 1}</a>
+                <a href="#item{i + 1}" onclick={() => clickedToggleImageCount += 1} class="btn btn-xs w-8 h-8">{i + 1}</a>
             {/each}
         </div>
     {/if}
@@ -213,7 +214,7 @@
                 <p class="text-md ml-1">{formatDate(offer.created_at)}</p>
             </div>
             <div class="flex" style="margin-left: auto !important;">
-                <button on:click={toggleFavorite}>
+                <button onclick={toggleFavorite}>
                     {#if hasLiked}
                         <Heart size={24} fill="#eb4034" color="#eb4034" />
                     {:else}
@@ -266,7 +267,7 @@
 
     <div class="mt-4 flex mx-auto w-2/3 pb-4">
         {#if offer.user_id !== user_id}
-            <button class="flex btn w-full" on:click={startChat}>
+            <button class="flex btn w-full" onclick={startChat}>
                 <MessageSquareMore size={20} class="mt-1 mr-1" />
                 <p>Chat starten</p>
             </button>

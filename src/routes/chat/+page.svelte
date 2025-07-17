@@ -2,16 +2,16 @@
 // @ts-nocheck
 
     import { onMount } from 'svelte';
-    import { swapBoxService } from '../../lib/api/swapbox.service';
- 
+    import { swapBoxService } from '$lib/api/swapbox.service.js';
+
     let chats = $state([]);
     let loading = $state(true);
     let error = $state(null);
-      
+
    let  { data } = $props();
     let user = data.user;
     let userId = user.id;
-    
+
     onMount(async () => {
         try {
             loading = true;
@@ -24,19 +24,19 @@
             loading = false;
         }
     });
-    
+
     function formatDate(dateString) {
         return new Date(dateString).toLocaleDateString('de-DE');
     }
-    
+
     function getDisplayName(chat) {
         return chat.otherUser?.name || 'Unknown User';
     }
-    
+
     function getChatTitle(chat) {
         return chat.offers?.title || 'Chat';
     }
-    
+
     function getAvatarLetter(title) {
         return title?.charAt(0)?.toUpperCase() || '?';
     }
@@ -68,35 +68,73 @@
     </div>
 {:else}
     {#each chats as chat}
-        <a class="rounded-box shadow-sm flex mx-2 mt-2 hover:shadow-md transition-shadow" href="/chat/{chat.id}">
-            {#if chat.image === null}
-                <div class="skeleton min-h-16 min-w-16 m-2"></div>
-            {:else if chat.image === undefined || !chat.image}
-                <div class="avatar avatar-placeholder m-2">
-                    <div class="bg-neutral text-neutral-content w-16 rounded-box">
-                        <span class="text-2xl">{getAvatarLetter(getChatTitle(chat))}</span>
+        <a class="rounded-box shadow-sm chat-card-layout mx-2 mt-2 hover:shadow-md transition-shadow p-2" href="/chat/{chat.id}">
+            <div class="image-wrapper flex-shrink-0 mx-auto mb-2">
+                {#if chat.image === null}
+                    <div class="skeleton min-h-16 min-w-16 rounded-box"></div>
+                {:else if chat.image === undefined || !chat.image}
+                    <div class="avatar avatar-placeholder">
+                        <div class="bg-neutral text-neutral-content w-16 h-16 rounded-box flex items-center justify-center">
+                            <span class="text-2xl">{getAvatarLetter(getChatTitle(chat))}</span>
+                        </div>
                     </div>
+                {:else}
+                    <img class="w-16 h-16 object-cover rounded-box" src="{chat.image}" alt="Chat Image">
+                {/if}
+            </div>
+
+            <div class="text-content flex-grow flex flex-col min-w-0">
+                <div class="flex justify-between items-start">
+                    <p class="text-base font-semibold text-gray-800 flex-grow truncate mr-2">{getDisplayName(chat)}</p>
+                    <p class="text-xs text-gray-500 flex-shrink-0">{formatDate(chat.created_at)}</p>
                 </div>
-            {:else}
-                <img class="min-h-16 min-w-16 rounded-box m-2" width="16" height="16" src="{chat.image}" alt="Chat Image">
-            {/if}
-            <div class="w-full">
-                <div class="mt-2 flex">
-                    <p class="mx-2">{getDisplayName(chat)}</p>
-                    <p class="mx-2" style="margin-left: auto !important;">{formatDate(chat.created_at)}</p>
-                </div>
-                <div class="w-full flex items-center">
-                    <p class="mx-2 text-xl">{getChatTitle(chat)}</p>
+
+                <div class="flex items-center mt-1">
+                    <p class="text-xl font-bold truncate flex-grow mr-2">{getChatTitle(chat)}</p>
                     {#if chat.unreadCount > 0}
-                        <span class="badge badge-primary badge-sm ml-2">{chat.unreadCount}</span>
+                        <span class="badge badge-primary badge-sm flex-shrink-0">{chat.unreadCount}</span>
                     {/if}
                 </div>
+
                 {#if chat.lastMessage}
-                    <div class="w-full flex">
-                        <p class="mx-2 text-sm text-gray-500 truncate">{chat.lastMessage.content}</p>
+                    <div class="flex mt-1">
+                        <p class="text-sm text-gray-500 truncate flex-grow">{chat.lastMessage.content}</p>
                     </div>
                 {/if}
             </div>
         </a>
     {/each}
 {/if}
+
+<style>
+    .chat-card-layout {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .image-wrapper {
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 0.5rem;
+    }
+
+    .text-content {
+        margin-left: 0;
+    }
+
+    @media (min-width: 256px) {
+        .chat-card-layout {
+            flex-direction: row;
+        }
+
+        .image-wrapper {
+            margin-left: 0;
+            margin-right: 0;
+            margin-bottom: 0;
+        }
+
+        .text-content {
+            margin-left: 0.5rem;
+        }
+    }
+</style>
