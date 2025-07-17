@@ -30,8 +30,8 @@
     <div class="image-wrapper flex-shrink-0 mx-auto mb-2">
         {#if imageData === null}
             <div class="avatar avatar-placeholder">
-                <div class="bg-neutral text-neutral-content min-h-16 min-w-16 rounded-box flex items-center justify-center">
-                    <span class="text-2xl">{title ? title[0] : "?"}</span>
+                <div class="bg-neutral text-neutral-content min-h-24 min-w-24 rounded-box flex items-center justify-center">
+                    <span class="text-3xl">{title ? title[0] : "?"}</span>
                 </div>
             </div>
         {:else}
