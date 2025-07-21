@@ -650,6 +650,37 @@ async markChatMessagesAsRead(chatId, userId) {
     return true;
   }
 
+async getMessagesUnreadCountByUserId(userId) {
+  // Zuerst alle Chat-IDs holen, in denen der User beteiligt ist
+  const { data: userChats, error: chatsError } = await supabase
+    .from('chats')
+    .select('id')
+    .or(`user1_id.eq.${userId},user2_id.eq.${userId}`);
+
+  if (chatsError) throw chatsError;
+  
+  if (!userChats || userChats.length === 0) {
+    return 0;
+  }
+
+  // Chat-IDs extrahieren
+  const chatIds = userChats.map(chat => chat.id);
+
+  // Dann ungelesene Nachrichten in diesen Chats zählen
+  const { data, error } = await supabase
+    .from('messages')
+    .select('id')
+    .eq('read', false)
+    .neq('sender_id', userId) // Nicht die eigenen Nachrichten zählen
+    .in('chat_id', chatIds);
+
+  if (error) throw error;
+  
+  return data?.length || 0;
+}
+
+
+
   // ========== RATINGS ==========
   async getRatings(userId) {
     const { data, error } = await supabase

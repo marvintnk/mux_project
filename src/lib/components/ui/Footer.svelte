@@ -1,13 +1,16 @@
 <script>
     import { goto, invalidateAll } from '$app/navigation';
     import { page } from '$app/stores';
+    import { onMount, onDestroy } from 'svelte';
     import {
         BookHeart,
         CirclePlus,
         MessageCircleMore,
-        CircleUser,
-        ContactRound
+        CircleUser
     } from "@lucide/svelte";
+    import { unreadMessagesCount, messagesStore } from '$lib/stores/messages.js';
+
+    export let user; // User-Daten als Prop
 
     // Vereinfachte Navigation
     async function navigateWithAuth(path) {
@@ -21,6 +24,21 @@
             return $page.url.pathname === '/';
         }
         return $page.url.pathname.startsWith(path);
+    }
+
+    onMount(async () => {
+        if (user?.id) {
+            await messagesStore.init(user.id);
+        }
+    });
+
+    onDestroy(() => {
+        messagesStore.destroy();
+    });
+
+    // Reaktiv auf User-Änderungen
+    $: if (user?.id) {
+        messagesStore.init(user.id);
     }
 </script>
 
@@ -59,7 +77,11 @@
     >
         <span class="indicator">
             <MessageCircleMore size="1.2em"/>
-            <!-- <span class="badge badge-accent badge-xs shadow-sm indicator-item"></span> -->
+            {#if $unreadMessagesCount > 0}
+                <span class="badge badge-accent badge-xs shadow-sm indicator-item">
+                    {$unreadMessagesCount > 99 ? '99+' : $unreadMessagesCount}
+                </span>
+            {/if}
         </span>
         <span class="dock-label font-bold">Chat</span>
     </button>

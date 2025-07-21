@@ -4,6 +4,9 @@
     import { page } from '$app/stores';
     import { invalidateAll } from '$app/navigation';
     import { afterNavigate } from '$app/navigation';
+    import { messagesStore } from '$lib/stores/messages.js';
+    import { onMount, onDestroy } from 'svelte';
+    import { browser } from '$app/environment';
 
     let { data, children } = $props();
 
@@ -26,6 +29,22 @@
         }
     });
 
+    // Messages Store initialisieren wenn User verfügbar ist
+    $effect(() => {
+        if (browser && user?.id) {
+            messagesStore.init(user.id);
+        } else if (browser && !user?.id) {
+            messagesStore.destroy();
+        }
+    });
+
+    // Cleanup beim Zerstören der Komponente
+    onDestroy(() => {
+        if (browser) {
+            messagesStore.destroy();
+        }
+    });
+
     // Debug-Ausgabe mit $effect
     $effect(() => {
         console.log('Layout user:', user);
@@ -37,5 +56,5 @@
 {@render children()}
 
 {#if showFooter}
-    <Footer profileData={user ? 1 : 0} />
+    <Footer {user} />
 {/if}
