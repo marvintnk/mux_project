@@ -6,6 +6,7 @@
     import Rating from "$lib/components/ui/Rating.svelte";
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
     import InvalidImageModal from "$lib/components/ui/InvalidImageModal.svelte";
+    import AskDeleteComponent from "$lib/components/ui/AskDeleteComponent.svelte";
     import { swapBoxService } from "$lib/api/swapbox.service.js";
     import { onMount } from "svelte";
 
@@ -20,6 +21,7 @@
     let error = $state(null);
     let description = $state("");
     let isEditingDescription = $state(false);
+    let idAskDeletion = $state(null);
 
     function getInitials(name) {
         if (!name) return "??";
@@ -100,6 +102,7 @@
 
 <GoBackItem showLogoutButton={true} />
 
+<div class="{idAskDeletion !== null ? 'blur-xs' : ''}">
 {#if loading}
     <div class="flex justify-center items-center h-64">
         <div class="loading loading-spinner loading-lg"></div>
@@ -186,8 +189,8 @@
                     title={item.title}
                     date={item.date}
                     href={item.link}
-                    isDeleteItem={true}
-                    trashClickFunction={() => deleteOffer(item.id, index)}
+                    deletable={true}
+                    clickFunction={() => idAskDeletion = index}
                 />
             {/each}
         </div>
@@ -202,6 +205,29 @@
     <div class="alert alert-warning mx-2 mt-4">
         <p>Benutzer nicht gefunden</p>
     </div>
+    
 {/if}
+</div>
 
 <InvalidImageModal />
+
+{#if idAskDeletion !== null}
+    <AskDeleteComponent
+        question="Sind Sie sicher, dass Sie diese Anzeige löschen möchten?"
+        questionClasses="text-md"
+
+        callbackNo={() => idAskDeletion = null}
+        callbackYes={async () => {
+            if (idAskDeletion !== null) {
+                await deleteOffer(myOffers[idAskDeletion].id, idAskDeletion);
+                idAskDeletion = null;
+            }
+        }}
+
+        yesButtonText="Entfernen"
+        yesButtonClasses="text-center text-red-600 text-xl"
+
+        noButtonText="Abbrechen"
+        noButtonClasses="text-center text-xl"
+    />
+{/if}

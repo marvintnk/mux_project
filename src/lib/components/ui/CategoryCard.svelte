@@ -12,6 +12,7 @@
     export let hasLiked = false;
 
     export let isFavoriteItem = false;
+    export let deletable = false;
     export let clickFunction = null;
 
     export let imageData = null;
@@ -56,6 +57,12 @@
                     <p class="text-sm ml-2">Entfernen</p>
                 </button>
             {/if}
+            {#if deletable}
+                <button class="btn  btn-sm ml-2 bg-base-100" onclick={handleRemoveClick}>
+                    Löschen
+                </button>
+            {/if}
+
         </div>
     </div>
 </a>

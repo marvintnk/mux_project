@@ -99,7 +99,7 @@
 {#if idAskDeletion !== null}
     <AskDeleteComponent
         question="Sind Sie sicher, dass Sie diese Anzeige entfernen möchten?"
-        questionClasses="text-sm"
+        questionClasses="text-md"
 
         callbackNo={() => idAskDeletion = null}
         callbackYes={() => removeFavorite(idAskDeletion)}

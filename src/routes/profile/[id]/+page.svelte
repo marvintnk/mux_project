@@ -149,6 +149,7 @@
                     likes={item.likes}
                     location={item.location}
                     title={item.title}
+                    deletable={true}
                     date={item.date}
                     href={item.link}
                     isDeleteItem={true}
@@ -170,3 +171,5 @@
 {/if}
 
 <InvalidImageModal/>
+
+
