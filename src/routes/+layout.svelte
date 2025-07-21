@@ -11,12 +11,12 @@
     const user = $derived(data.user);
 
     // Routen ohne Footer definieren
-    const noFooterRoutes = ['/login', '/register'];
-    const showFooter = $derived(!noFooterRoutes.includes($page.url.pathname));
+    const protectedRoutes = ['/profile', '/favorites', '/add', '/chat'];
+    const noFooterRoutes = ['/login', '/register', '/chat/'];
+    const showFooter = $derived(!noFooterRoutes.some(route => $page.url.pathname.startsWith(route)));
 
     // Bei Navigation zu geschützten Routen Daten invalidieren
     afterNavigate(() => {
-        const protectedRoutes = ['/profile', '/favorites', '/add', '/chat'];
         const isProtected = protectedRoutes.some(route =>
             $page.url.pathname.startsWith(route)
         );

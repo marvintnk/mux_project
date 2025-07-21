@@ -1,36 +1,43 @@
 <script>
 // @ts-nocheck
 
-    import { ChevronLeft, Ellipsis, Camera, SendHorizontal, Trash2 } from "@lucide/svelte";
-    import InvalidImageModal from "../../../lib/components/ui/InvalidImageModal.svelte";
-    import { onMount, onDestroy } from 'svelte';
-    import { swapBoxService } from "../../../lib/api/swapbox.service";
-    import { page } from '$app/state';
-    import { goto } from '$app/navigation';
+import { ChevronLeft, Ellipsis, Camera, SendHorizontal, Trash2 } from "@lucide/svelte";
+import InvalidImageModal from "../../../lib/components/ui/InvalidImageModal.svelte";
+import { onMount, onDestroy } from 'svelte';
+import { swapBoxService } from "../../../lib/api/swapbox.service";
+import { page } from '$app/state';
+import { goto } from '$app/navigation';
 
-    // Get chat ID from URL params
-    const chatId = page.params.offer;
-    
-    let  { data } = $props();
-    let user = data.user;
-    const currentUserId = user.id; 
+// Get chat ID from URL params
+const chatId = page.params.offer;
 
-    let currentChatAttachment = $state([]);
-    let chat = $state(null);
-    let messages = $state([]);
-    let loading = $state(true);
-    let error = $state(null);
-    let subscription = $state(null);
+let  { data } = $props();
+let user = data.user;
+const currentUserId = user.id; 
 
-    let senderAName = $state("User A");
-    let senderBName = $state("User B");
-    let senderAProfile = $state(null);
-    let senderBProfile = $state(null);
+let currentChatAttachment = $state([]);
+let chat = $state(null);
+let messages = $state([]);
+let loading = $state(true);
+let error = $state(null);
+let subscription = $state(null);
 
-    let inReview = $state(false);
-    let canReview = $state(true);
-    let title = $state("Chat");
-    
+let senderAName = $state("User A");
+let senderBName = $state("User B");
+let senderAProfile = $state(null);
+let senderBProfile = $state(null);
+
+let inReview = $state(false);
+let canReview = $state(true);
+let title = $state("Chat");
+
+// Auto-scroll to bottom function
+const scrollToBottom = () => {
+    const contentDiv = document.querySelector('.content');
+    if (contentDiv) {
+        contentDiv.scrollTop = contentDiv.scrollHeight;
+    }
+};
 
 onMount(async () => {
     try {
@@ -71,12 +78,18 @@ onMount(async () => {
                 
                 messages = [...messages, newMessage];
                 
+                // Auto-scroll to bottom when new message arrives
+                setTimeout(() => scrollToBottom(), 50);
+                
                 // Mark as read if it's not from current user
                 if (newMessage.sender_id !== currentUserId) {
                     swapBoxService.markMessageAsRead(newMessage.id);
                 }
             }
         });
+        
+        // Scroll to bottom after loading messages
+        setTimeout(() => scrollToBottom(), 100);
         
     } catch (err) {
         error = err.message || 'Failed to load chat';
@@ -85,38 +98,39 @@ onMount(async () => {
         loading = false;
     }
 });
-            // Make sure to properly cleanup
-            onDestroy(() => {
-                console.log('Cleaning up subscription');
-                if (subscription) {
-                    swapBoxService.unsubscribe(subscription);
-                }
-            });
 
-    const openReview = () => {
-        if(!canReview) return;
-        inReview = true;
+// Make sure to properly cleanup
+onDestroy(() => {
+    console.log('Cleaning up subscription');
+    if (subscription) {
+        swapBoxService.unsubscribe(subscription);
     }
+});
 
-    const getNewProfilePicture = async () => {
-        const element = document.getElementById("fileInput");
-        const files = element.files;
+const openReview = () => {
+    if(!canReview) return;
+    inReview = true;
+}
 
-        for(let i = 0; i < files.length; i++) {
-            const file = files[i];
-            try {
-                // Upload image to get URL
-                const imageUpload = await swapBoxService.uploadMessageImage(file, currentUserId, chatId);
-                currentChatAttachment.push(imageUpload.public_url);
-            } catch (err) {
-                console.error('Error uploading image:', err);
-                document.getElementById("modal_invalid_datatype").showModal();
-                currentChatAttachment = [];
-            }
+const getNewProfilePicture = async () => {
+    const element = document.getElementById("fileInput");
+    const files = element.files;
+
+    for(let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+            // Upload image to get URL
+            const imageUpload = await swapBoxService.uploadMessageImage(file, currentUserId, chatId);
+            currentChatAttachment.push(imageUpload.public_url);
+        } catch (err) {
+            console.error('Error uploading image:', err);
+            document.getElementById("modal_invalid_datatype").showModal();
+            currentChatAttachment = [];
         }
     }
+}
 
-  const sendMessage = async () => {
+const sendMessage = async () => {
     const text = document.getElementById("chatInput").value;
     if((!text || text.length === 0) && currentChatAttachment.length <= 0) return;
 
@@ -147,6 +161,9 @@ onMount(async () => {
         const attachments = [...currentChatAttachment];
         currentChatAttachment = [];
         document.getElementById("chatInput").value = "";
+
+        // Auto-scroll to bottom for optimistic message
+        setTimeout(() => scrollToBottom(), 50);
 
         let newMessage;
         
@@ -181,49 +198,55 @@ onMount(async () => {
     }
 }
 
-    const finishReview = async () => {
-        if(!canReview) {
-            inReview = false;
+const finishReview = async () => {
+    if(!canReview) {
+        inReview = false;
+        return;
+    }
+
+    try {
+        const ratingInput = document.querySelector('input[name="rating-11"]:checked');
+        if (!ratingInput) {
+            alert('Please select a rating');
             return;
         }
-
-        try {
-            const ratingInput = document.querySelector('input[name="rating-11"]:checked');
-            if (!ratingInput) {
-                alert('Please select a rating');
-                return;
-            }
-            
-            const rating = parseFloat(ratingInput.value);
-            
-            const otherUserId = chat.user1_id === currentUserId ? chat.user2_id : chat.user1_id;
-            
-            await swapBoxService.createRating({
-                offer_id: chat.offer_id,
-                from_user_id: currentUserId,
-                to_user_id: otherUserId,
-                rating_value: rating,
-            });
-            
-            inReview = false;
-            canReview = false; // Disable further reviews
-            
-        } catch (err) {
-            console.error('Error submitting rating:', err);
-            alert('Failed to submit rating');
-        }
+        
+        const rating = parseFloat(ratingInput.value);
+        
+        const otherUserId = chat.user1_id === currentUserId ? chat.user2_id : chat.user1_id;
+        
+        await swapBoxService.createRating({
+            offer_id: chat.offer_id,
+            from_user_id: currentUserId,
+            to_user_id: otherUserId,
+            rating_value: rating,
+        });
+        
+        inReview = false;
+        canReview = false; // Disable further reviews
+        
+    } catch (err) {
+        console.error('Error submitting rating:', err);
+        alert('Failed to submit rating');
     }
+}
 
-    const goBack = () => {
-        goto('/chat');
+const goBack = () => {
+    goto('/chat');
+}
+
+// Helper functions for message display
+const isCurrentUser = (senderId) => senderId === currentUserId;
+const getSenderName = (senderId) => isCurrentUser(senderId) ? senderBName : senderAName;
+const getSenderProfile = (senderId) => isCurrentUser(senderId) ? senderBProfile : senderAProfile;
+const formatDate = (dateString) => new Date(dateString).toLocaleDateString('de-DE');
+const formatTime = (dateString) => new Date(dateString).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+        sendMessage();
     }
-
-    // Helper functions for message display
-    const isCurrentUser = (senderId) => senderId === currentUserId;
-    const getSenderName = (senderId) => isCurrentUser(senderId) ? senderBName : senderAName;
-    const getSenderProfile = (senderId) => isCurrentUser(senderId) ? senderBProfile : senderAProfile;
-    const formatDate = (dateString) => new Date(dateString).toLocaleDateString('de-DE');
-    const formatTime = (dateString) => new Date(dateString).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+};
 </script>
 
 {#if loading}
@@ -323,7 +346,7 @@ onMount(async () => {
                             {getSenderName(message.sender_id)}
                             <time class="text-xs opacity-50">{formatTime(message.sent_at)}</time>
                         </div>
-                        <div class="chat-bubble">
+                        <div class="chat-bubble {message.sending ? 'opacity-70' : ''}">
                             {message.content}
                             {#if message.image_public_url}
                                 <div class="mt-2">
@@ -340,40 +363,52 @@ onMount(async () => {
             {/each}
         </div>
 
-        <div class="sticky-footer w-full border-t border-base-400 mb-13">
-            <div class="flex mt-2">
+        <div class="sticky-footer w-full border-t border-base-400">
+            <!-- Message input row -->
+            <div class="flex items-center gap-2 mb-3">
                 {#if currentChatAttachment.length > 0}
-                    <div class="indicator" onclick={() => currentChatAttachment = []}>
+                    <div class="indicator cursor-pointer" onclick={() => currentChatAttachment = []}>
                         <span class="indicator-item bg-transparent border-transparent text-xs">
                             {currentChatAttachment.length}
                         </span>
-                        <Trash2 class="my-auto ml-2" />
+                        <Trash2 class="w-6 h-6" />
                     </div>
                 {:else}
-                    <div class="my-auto" onclick={() => document.getElementById("fileInput").click()}>
-                        <Camera class="ml-2" />
+                    <div class="cursor-pointer" onclick={() => document.getElementById("fileInput").click()}>
+                        <Camera class="w-6 h-6" />
                     </div>
                 {/if}
 
-                <div class="m-auto input w-3/4">
-                    <input type="text" id="chatInput" placeholder="Nachricht schreiben..." />
+                <input 
+                    type="text" 
+                    id="chatInput" 
+                    placeholder="Nachricht schreiben..." 
+                    class="input input-bordered flex-1"
+                    onkeydown={handleKeyDown}
+                />
+
+                <div class="cursor-pointer" onclick={() => sendMessage()}>
+                    <SendHorizontal class="w-6 h-6" />
                 </div>
 
-                <div class="flex my-auto" onclick={() => sendMessage()}>
-                    <SendHorizontal class="mr-2"  />
-                </div>
-
-                <input id="fileInput" type="file" style="display:none;" accept="image/png, image/jpeg, image/webp, image/heic" oninput={() => getNewProfilePicture()} />
+                <input 
+                    id="fileInput" 
+                    type="file" 
+                    style="display:none;" 
+                    accept="image/png, image/jpeg, image/webp, image/heic" 
+                    oninput={() => getNewProfilePicture()} 
+                />
             </div>
 
+            <!-- Action button row -->
             {#if canReview}
-                <div class="flex mx-2">
-                    <button class="btn btn-accent mt-4 w-full" onclick={() => openReview()}>Nutzer bewerten</button>
-                </div>
+                <button class="btn btn-accent w-full" onclick={() => openReview()}>
+                    Nutzer bewerten
+                </button>
             {:else}
-                <div class="flex mx-2">
-                    <button class="btn btn-accent mt-4 w-full" onclick={goBack}>Zurück zu meinen Chats</button>
-                </div>
+                <button class="btn btn-accent w-full" onclick={goBack}>
+                    Zurück zu meinen Chats
+                </button>
             {/if}
         </div>
     </div>
@@ -405,32 +440,66 @@ onMount(async () => {
 <InvalidImageModal/>
 
 <style>
-    .flex-container {
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        height: 100vh;
-        width: 100vw;
-        max-height: 100vh;
-    }
+.flex-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+}
 
-    .sticky-header {
-        height: 4rem;
-    }
+.sticky-header {
+    flex-shrink: 0;
+    height: 4rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: inherit;
+}
 
-    .content {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        overflow-y: auto;
-    }
+.content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0 0.5rem;
+    scroll-behavior: smooth;
+    /* Wichtig: Maximale Höhe begrenzen */
+    max-height: calc(100vh - 8rem - 6rem); /* Header (4rem) + Footer (6rem) + Puffer */
+}
 
-    .sticky-footer {
-        height: 4rem;
-    }
+.sticky-footer {
+    flex-shrink: 0;
+    background: inherit;
+    border-top: 1px solid;
+    padding: 0.75rem;
+    position: fixed; /* Geändert von sticky zu fixed */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20; /* Höhere z-index als Content */
+    min-height: 5rem; /* Mindesthöhe definieren */
+}
 
-    body {
-        height: 100%;
-        overflow-y: hidden;
-    }
+body {
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Padding unten für Content, damit es nicht unter Footer verschwindet */
+.content {
+    padding-bottom: 6rem; /* Platz für Footer */
+}
+
+/* Ensure chat bubbles have proper spacing */
+.chat {
+    margin-bottom: 0.5rem;
+}
+
+/* Style for sending messages */
+.chat-bubble.opacity-70 {
+    opacity: 0.7;
+}
+
 </style>
