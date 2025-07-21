@@ -527,8 +527,6 @@ async getMessages(chatId) {
     return data.map(message => ({
       ...message,
       image_public_url: message.image_url 
-        ? supabase.storage.from('message-images').getPublicUrl(message.image_url).data.publicUrl 
-        : null
     }));
   }
 
