@@ -1,5 +1,5 @@
 <script>
-    import { Plus, Camera, OctagonAlert, Trash2 } from "@lucide/svelte";
+    import { Plus, OctagonAlert, Trash2 } from "@lucide/svelte";
     import GoBackItem from "$lib/components/ui/GoBackItem.svelte";
     import { CATEGORIES } from "$lib/categories.js";
     import { LOCATIONS } from "$lib/locations.js";
@@ -9,8 +9,7 @@
     import { onMount } from "svelte";
 
     let images = $state([]);
-    let imageFiles = $state([]); // Speichert die tatsächlichen File-Objekte
-    let videoStream = $state(false);
+    let imageFiles = $state([]);
     let isLoading = $state(false);
 
     // Data aus dem Server Load
@@ -27,63 +26,6 @@
 
     // Aktueller Benutzer
     let user = data.user;
-
-    const startVideoStream = async () => {
-        videoStream = true;
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-            });
-            const canvas = document.getElementById("camera");
-            canvas.srcObject = stream;
-        } catch (error) {
-            document.getElementById("modal_no_camera").showModal();
-            videoStream = false;
-        }
-    };
-
-    const stopVideoStream = () => {
-        const canvas = document.getElementById("camera");
-        if (canvas.srcObject) {
-            canvas.srcObject.getTracks().forEach((track) => track.stop());
-            canvas.srcObject = null;
-        }
-
-        const captureCanvas = document.getElementById("photo");
-        captureCanvas.width = 0;
-        captureCanvas.height = 0;
-
-        videoStream = false;
-    };
-
-    const capturePicture = () => {
-        if (!videoStream) return;
-
-        const video = document.getElementById("camera");
-        const canvas = document.getElementById("photo");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-
-        const context = canvas.getContext("2d");
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Canvas zu Blob konvertieren
-        canvas.toBlob(
-            (blob) => {
-                const file = new File([blob], `camera_${Date.now()}.jpg`, {
-                    type: "image/jpeg",
-                });
-                imageFiles.push(file);
-
-                const base64 = canvas.toDataURL("image/jpeg");
-                images.push(base64);
-            },
-            "image/jpeg",
-            0.8,
-        );
-
-        stopVideoStream();
-    };
 
     const removeImage = (i) => {
         images.splice(i, 1);
@@ -210,29 +152,6 @@
 </div>
 
 <div
-    class="rounded-box p-4 mx-4 shadow-sm mt-10 flex bg-base-200"
-    onclick={() => startVideoStream()}
->
-    <Camera class="my-auto" />
-    <p class="w-full text-xl font-bold text-center">Foto erstellen</p>
-</div>
-
-{#if videoStream}
-    <video id="camera" autoplay></video>
-    <div class="flex justify-center mt-2">
-        <button
-            id="capture-btn"
-            class="btn btn-primary"
-            onclick={() => capturePicture()}>Foto aufnehmen</button
-        >
-        <button class="btn btn-secondary ml-2" onclick={() => stopVideoStream()}
-            >Abbrechen</button
-        >
-    </div>
-    <canvas id="photo" style="display: none;"></canvas>
-{/if}
-
-<div
     class="rounded-box p-4 mx-4 shadow-sm mt-2 flex bg-base-200"
     onclick={() => document.getElementById("fileInput").click()}
 >
@@ -240,12 +159,12 @@
         id="fileInput"
         type="file"
         style="display:none;"
-        accept="image/png, image/jpeg, image/webp"
+        accept="image/png, image/jpeg, image/webp, image/heic"
         multiple
         oninput={() => captureInput()}
     />
     <Plus class="my-auto" />
-    <p class="w-full text-xl font-bold text-center">Foto hochladen</p>
+    <p class="w-full text-xl font-bold text-center">Foto(s) Hinzufügen</p>
 </div>
 
 {#if images.length > 0}

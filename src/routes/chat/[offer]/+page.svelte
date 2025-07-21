@@ -118,17 +118,29 @@ const getNewProfilePicture = async () => {
 
     for(let i = 0; i < files.length; i++) {
         const file = files[i];
+        
+        // Add file type validation before upload attempt
+        if (!file.type.startsWith("image/")) {
+            console.error('Invalid file type:', file.type);
+            document.getElementById("modal_invalid_datatype").showModal();
+            continue; // Skip this file and continue with others
+        }
+        
         try {
-            // Upload image to get URL
             const imageUpload = await swapBoxService.uploadMessageImage(file, currentUserId, chatId);
             currentChatAttachment.push(imageUpload.public_url);
         } catch (err) {
             console.error('Error uploading image:', err);
             document.getElementById("modal_invalid_datatype").showModal();
             currentChatAttachment = [];
+            break; // Stop processing if upload fails
         }
     }
+    
+    // Reset the file input
+    element.value = "";
 }
+
 
 const sendMessage = async () => {
     const text = document.getElementById("chatInput").value;
