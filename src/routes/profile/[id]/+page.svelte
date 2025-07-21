@@ -48,16 +48,23 @@
         }
     });
 
-    // Delete offer function
-    async function deleteOffer(offerId, index) {
-        try {
-            await swapBoxService.deleteOffer(offerId);
-            // Remove from local array
-            myOffers = myOffers.filter((_, i) => i !== index);
-        } catch (err) {
-            console.error('Fehler beim Löschen des Angebots:', err);
-            alert('Fehler beim Löschen des Angebots');
+    function getInitials(name) {
+        if (!name) return "??";
+
+        const words = name.trim().split(/\s+/); // nach Leerzeichen splitten
+
+        if (words.length >= 2) {
+            // erster Buchstabe der ersten beiden Wörter
+            return (words[0][0] + words[1][0]).toUpperCase();
+        } else if (words[0].length >= 2) {
+            // erstes Wort mindestens 2 Buchstaben
+            return words[0].substring(0, 2).toUpperCase();
+        } else if (words[0].length === 1) {
+            // erstes Wort nur 1 Buchstabe
+            return (words[0] + words[0]).toUpperCase();
         }
+
+        return "??";
     }
 
     // Profile picture upload (if needed)
@@ -124,7 +131,7 @@
 
         <p class="ml-4 text-lg">{currentUser.email}</p>
         <textarea
-            class="textarea mt-8 w-full h-32 px-4"
+            class="textarea mt-8 w-full h-32 px-4 bg-base-200"
             placeholder="Die Beschreibung"
             readonly="true"
             style="resize: none !important;"
@@ -135,7 +142,7 @@
         <p class="pl-1 mt-5 text-2xl w-full border-b border-base-400">
             {myOffers.length} {myOffers.length === 1 ? 'Anzeige' : 'Anzeigen'}
         </p>
-        <div class="mx-2 mt-5 flex flex-col gap-4">
+        <div class="mx-2 mt-3 mx-2 flex flex-col gap-2">
             {#each myOffers as item, index}
                 <CategoryCard
                     imageData={item.img}

@@ -18,7 +18,7 @@
             onclick={handleLogout}
             title="Abmelden"
         >
-            <LogOut size={24} />
+            <LogOut size={20} />
         </button>
     {/if}
 

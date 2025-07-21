@@ -57,7 +57,7 @@ export const actions = {
       // Session Cookie setzen (7 Tage gültig)
       cookies.set('userId', userData.id.toString(), {
         path: '/',
-        expires: new Date(Date.now() + 1000*60*60)
+        expires: new Date(Date.now() + 1000*60*60*4)
       });
       console.log('Cookie set successfully. Redirecting...');
 

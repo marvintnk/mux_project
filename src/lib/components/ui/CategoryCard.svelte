@@ -52,8 +52,8 @@
         <div class="flex justify-end mt-2">
             {#if isFavoriteItem}
                 <button class="shadow-sm rounded-box flex items-center px-4 py-2 hover:bg-primary transition-colors duration-200 flex-shrink-0 bg-base-100" onclick={handleRemoveClick}>
-                    <p class="text-sm mr-1">Entfernen</p>
                     <HeartBreakIcon size={20} classes="my-auto" fill="#eb4034" stroke="#eb4034"/>
+                    <p class="text-sm ml-2">Entfernen</p>
                 </button>
             {/if}
         </div>

@@ -1,6 +1,7 @@
 <script>
     import { goto } from "$app/navigation";
     import { redirect } from "@sveltejs/kit";
+    import GreenGradientText from "$lib/components/ui/GreenGradientText.svelte";
 
     let registering = $state(false);
     let registerButtonUnlocked = $state(false);
@@ -169,16 +170,27 @@
     };
 </script>
 
+
+<div class="flex justify-center mt-15">
+    <div class="avatar">
+        <div class="w-32">
+            <img src="/android-chrome-512x512.png">
+        </div>
+    </div>
+</div>
+
+<GreenGradientText text="Swapbox" additionalClasses="text-4xl font-bold text-center"/>
+
 <div class="h-screen flex flex-col">
     <div class="mx-auto mt-5">
-        <p class="text-xl font-bold">Herzlich Willkommen</p>
+        
     </div>
 
     <div class="m-auto mt-5">
         <fieldset
             class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4"
         >
-            <legend class="fieldset-legend">Registrierung</legend>
+            <legend class="fieldset-legend text-xl">Registrierung</legend>
 
             {#if registrationError === "success"}
                 <div class="alert alert-success mb-4">
@@ -193,44 +205,44 @@
                 </div>
             {/if}
 
-            <label class="label">Benutzername</label>
             <input
                 id="username"
                 type="text"
-                class="input"
+                class="input mt-2"
+                placeholder="Benutzername"
                 disabled={registering}
                 oninput={() => check()}
                 required
             />
             <p id="iuser" hidden={!invalidUsername} class="text-error"></p>
 
-            <label class="label">E-Mail</label>
             <input
                 id="email"
                 type="email"
-                class="input"
+                class="input mt-2"
+                placeholder="E-Mail"
                 disabled={registering}
                 oninput={() => check()}
                 required
             />
             <p id="iemail" hidden={!invalidEmail} class="text-error"></p>
 
-            <label class="label">Passwort</label>
             <input
                 id="pw"
                 type="password"
-                class="input"
+                class="input mt-2"
+                placeholder="Passwort"
                 disabled={registering}
                 oninput={() => check()}
                 required
             />
             <p id="ipass" hidden={!invalidPassword} class="text-error"></p>
 
-            <label class="label">Passwort bestätigen</label>
             <input
                 id="pwr"
                 type="password"
-                class="input"
+                placeholder="Passwort bestätigen"
+                class="input mt-2"
                 disabled={registering}
                 oninput={() => check()}
                 required
@@ -245,16 +257,18 @@
                 >Du hast bereits einen Account?</a
             >
             <button
-                class="btn btn-outline btn-success"
+                class="btn btn-outline btn-success bg-accent"
                 disabled={!registerButtonUnlocked || registering}
                 onclick={handleRegistration}
             >
                 {#if registering}
                     <span class="loading loading-dots loading-md"></span>
                 {:else}
-                    Registrieren
+                    <span class="text-white">Registrieren</span>
                 {/if}
             </button>
+
+
         </fieldset>
     </div>
 </div>

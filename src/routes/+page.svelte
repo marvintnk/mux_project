@@ -125,7 +125,7 @@
     {/each}
 </div>
 
-<p class="text-xl mt-5 ml-3 font-bold">Neuste Anzeigen</p>
+<p class="text-xl mt-5 ml-3 font-bold ">Neuste Anzeigen</p>
 
 <div class="mx-2 flex flex-col mt-2 gap-2">
     {#each visibleOffers as offer}

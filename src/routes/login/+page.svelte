@@ -1,15 +1,26 @@
 <script>
   import { enhance } from '$app/forms';
   import { goto } from '$app/navigation';
+  import GreenGradientText from '$lib/components/ui/GreenGradientText.svelte';
 
   export let form;
 
   let loading = false;
 </script>
 
+<div class="flex justify-center mt-15">
+    <div class="avatar">
+        <div class="w-32">
+            <img src="/android-chrome-512x512.png">
+        </div>
+    </div>
+</div>
+
+<GreenGradientText text="Swapbox" additionalClasses="text-4xl font-bold text-center"/>
+
 <div class="flex flex-col">
   <div class="mx-auto mt-5">
-    <p class="text-xl font-bold">Willkommen zurück</p>
+    
   </div>
 
   <div class="m-auto mt-5">
@@ -25,7 +36,7 @@
       }}
     >
       <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
-        <legend class="fieldset-legend">Login</legend>
+        <legend class="fieldset-legend text-xl">Login</legend>
 
         {#if form?.error}
           <div class="alert alert-error mb-4">
@@ -33,21 +44,22 @@
           </div>
         {/if}
 
-        <label class="label">E-Mail</label>
         <input 
           name="email" 
           type="email" 
           class="input" 
+          placeholder="E-Mail"
           value={form?.email || ''} 
           disabled={loading} 
           required 
         />
 
-        <label class="label">Passwort</label>
+
         <input 
           name="password" 
           type="password" 
-          class="input" 
+          class="input mt-2" 
+          placeholder="Passwort"
           disabled={loading} 
           required 
         />
@@ -58,15 +70,16 @@
         
         <button 
           type="submit" 
-          class="btn btn-outline btn-success" 
+          class="btn btn-outline btn-success bg-accent text-white" 
           disabled={loading}
         >
           {#if loading}
             <span class="loading loading-dots loading-md"></span>
           {:else}
-            Login
+            <span class="text-white">Login</span>
           {/if}
         </button>
+
       </fieldset>
     </form>
   </div>
