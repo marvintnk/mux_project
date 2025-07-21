@@ -70,7 +70,7 @@
         
         <button 
           type="submit" 
-          class="btn btn-outline btn-success bg-accent text-white" 
+          class="btn btn-outline bg-accent text-white" 
           disabled={loading}
         >
           {#if loading}

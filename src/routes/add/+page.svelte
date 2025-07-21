@@ -289,7 +289,7 @@
             name="action-type"
             class="radio mr-2 radio-accent"
             bind:group={formData.type}
-            value="suche"
+            value="search"
             style="margin-left: auto;"
         />
         Ich suche

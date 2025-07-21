@@ -363,7 +363,7 @@ onMount(async () => {
                     <SendHorizontal class="mr-2"  />
                 </div>
 
-                <input id="fileInput" type="file" style="display:none;" accept="image/png, image/jpeg, image/webp" oninput={() => getNewProfilePicture()} />
+                <input id="fileInput" type="file" style="display:none;" accept="image/png, image/jpeg, image/webp, image/heic" oninput={() => getNewProfilePicture()} />
             </div>
 
             {#if canReview}
@@ -379,7 +379,7 @@ onMount(async () => {
     </div>
 
     {#if inReview}
-        <div class="toast toast-center mb-15 bg-white min-w-full min-h-1/3 rounded-box" style="margin-bottom: -15px !important;">
+        <div class="toast toast-center mb-15 bg-base-100 min-w-full min-h-1/3 rounded-box" style="margin-bottom: -15px !important;">
             <p class="text-xl text-center mt-2">Wie war deine Erfahrung mit {senderAName}?</p>
             <div class="flex justify-center mt-2">
                 <div class="rating rating-lg rating-half">

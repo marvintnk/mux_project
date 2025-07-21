@@ -161,21 +161,10 @@
     </div>
 {:else if offer}
     <div class="flex m-2">
-        <button class="shadow-sm rounded-box p-1" onclick={goBack}>
-            <ChevronLeft size={24} />
-        </button>
-        <button
-            class="shadow-sm rounded-box p-1"
-            style="margin-left: auto !important;"
-            onclick={toggleFavorite}
-        >
-            {#if hasLiked}
-                <Heart size={24} fill="#eb4034" color="#eb4034" />
-            {:else}
-                <Heart size={24} />
-            {/if}
-        </button>
-    </div>
+    <button class="shadow-sm rounded-box p-1" onclick={goBack}>
+        <ChevronLeft size={24} />
+</div>
+
 
     {#if sortedImages.length > 0}
         <div class="carousel w-full">
@@ -232,16 +221,23 @@
                 <p class="text-md ml-1">{formatDate(offer.created_at)}</p>
             </div>
             <div class="flex" style="margin-left: auto !important;">
-                <button onclick={toggleFavorite}>
-                    {#if hasLiked}
-                        <Heart size={24} fill="#eb4034" color="#eb4034" />
-                    {:else}
-                        <Heart size={24} />
-                    {/if}
-                </button>
+                {#if offer.user_id !== user_id}
+                    <button onclick={toggleFavorite}>
+                        {#if hasLiked}
+                            <Heart size={24} fill="#eb4034" color="#eb4034" />
+                        {:else}
+                            <Heart size={24} />
+                        {/if}
+                    </button>
+                {:else}
+                    <!-- Nur anzeigen, nicht anklickbar für eigene Angebote -->
+                    <Heart size={24} class="text-gray-400" />
+                {/if}
                 <p class="text-md ml-1 mr-2">{favoritesCount}</p>
             </div>
         </div>
+
+
 
         
         <div class="mx-2 mt-4">

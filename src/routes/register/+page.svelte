@@ -2,6 +2,7 @@
     import { goto } from "$app/navigation";
     import { redirect } from "@sveltejs/kit";
     import GreenGradientText from "$lib/components/ui/GreenGradientText.svelte";
+    import { swapBoxService } from "$lib/api/swapbox.service.js";
 
     let registering = $state(false);
     let registerButtonUnlocked = $state(false);
