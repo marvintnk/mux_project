@@ -79,7 +79,7 @@
             </div>
         {:else}
             {#each favorites as item, i}
-                <div class="{i > 0 ? 'mt-4' : ''}">
+                <div class="{i > 0 ? 'mt-2' : ''}">
                     <CategoryCard
                         location={item.location}
                         title={item.title}

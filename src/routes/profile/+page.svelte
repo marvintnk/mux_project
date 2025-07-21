@@ -1,13 +1,13 @@
 <script>
-// @ts-nocheck
+    // @ts-nocheck
 
     import GoBackItem from "$lib/components/ui/GoBackItem.svelte";
     import { OctagonAlert } from "@lucide/svelte";
     import Rating from "$lib/components/ui/Rating.svelte";
     import CategoryCard from "$lib/components/ui/CategoryCard.svelte";
     import InvalidImageModal from "$lib/components/ui/InvalidImageModal.svelte";
-    import { swapBoxService } from '$lib/api/swapbox.service.js';
-    import { onMount } from 'svelte';
+    import { swapBoxService } from "$lib/api/swapbox.service.js";
+    import { onMount } from "svelte";
 
     let { data } = $props();
     let user = data.user;
@@ -21,15 +21,22 @@
     let description = $state("");
     let isEditingDescription = $state(false);
 
-    // Funktion um Initialen aus E-Mail zu extrahieren
-    function getInitialsFromEmail(email) {
-        if (!email) return "??";
-        const parts = email.split('@')[0]; // Teil vor dem @
-        if (parts.length >= 2) {
-            return parts.substring(0, 2).toUpperCase();
-        } else if (parts.length === 1) {
-            return (parts[0] + parts[0]).toUpperCase();
+    function getInitials(name) {
+        if (!name) return "??";
+
+        const words = name.trim().split(/\s+/); // nach Leerzeichen splitten
+
+        if (words.length >= 2) {
+            // erster Buchstabe der ersten beiden Wörter
+            return (words[0][0] + words[1][0]).toUpperCase();
+        } else if (words[0].length >= 2) {
+            // erstes Wort mindestens 2 Buchstaben
+            return words[0].substring(0, 2).toUpperCase();
+        } else if (words[0].length === 1) {
+            // erstes Wort nur 1 Buchstabe
+            return (words[0] + words[0]).toUpperCase();
         }
+
         return "??";
     }
 
@@ -44,8 +51,10 @@
             description = userData.description || "";
 
             // Load user's offers
-            const offersData = await swapBoxService.getOffers({ user_id: user_id });
-            myOffers = offersData.map(offer => ({
+            const offersData = await swapBoxService.getOffers({
+                user_id: user_id,
+            });
+            myOffers = offersData.map((offer) => ({
                 id: offer.id,
                 img: offer.offer_images?.[0]?.public_url || null,
                 link: `/offer/${offer.id}`,
@@ -53,12 +62,11 @@
                 location: offer.location,
                 date: new Date(offer.created_at).getTime(),
                 title: offer.title,
-                offer: offer
+                offer: offer,
             }));
-
         } catch (err) {
             error = err.message;
-            console.error('Fehler beim Laden der Benutzerdaten:', err);
+            console.error("Fehler beim Laden der Benutzerdaten:", err);
         } finally {
             loading = false;
         }
@@ -70,25 +78,27 @@
             await swapBoxService.deleteOffer(offerId);
             myOffers = myOffers.filter((_, i) => i !== index);
         } catch (err) {
-            console.error('Fehler beim Löschen des Angebots:', err);
-            alert('Fehler beim Löschen des Angebots');
+            console.error("Fehler beim Löschen des Angebots:", err);
+            alert("Fehler beim Löschen des Angebots");
         }
     }
 
     // Update description
     async function updateDescription() {
         try {
-            await swapBoxService.updateUser(user_id, { description: description });
+            await swapBoxService.updateUser(user_id, {
+                description: description,
+            });
             isEditingDescription = false;
             currentUser = { ...currentUser, description: description };
         } catch (err) {
-            console.error('Fehler beim Aktualisieren der Beschreibung:', err);
-            alert('Fehler beim Aktualisieren der Beschreibung');
+            console.error("Fehler beim Aktualisieren der Beschreibung:", err);
+            alert("Fehler beim Aktualisieren der Beschreibung");
         }
     }
 </script>
 
-<GoBackItem showLogoutButton={true}/>
+<GoBackItem showLogoutButton={true} />
 
 {#if loading}
     <div class="flex justify-center items-center h-64">
@@ -109,14 +119,16 @@
             <!-- Avatar mit E-Mail-Initialen -->
             <div class="avatar avatar-placeholder">
                 <div class="bg-neutral text-neutral-content w-16 rounded-full">
-                    <span class="text-2xl font-bold">{getInitialsFromEmail(currentUser.email)}</span>
+                    <span class="text-2xl font-bold"
+                        >{getInitials(currentUser.name)}</span
+                    >
                 </div>
             </div>
 
             <div class="ml-5">
                 <p class="text-xl">{currentUser.name}</p>
                 <div>
-                    <Rating rating={currentUser.rating || 0} editable={false}/>
+                    <Rating rating={currentUser.rating || 0} editable={false} />
                 </div>
             </div>
         </div>
@@ -125,27 +137,36 @@
 
         {#if isEditingDescription}
             <textarea
-                class="textarea mt-8 w-full h-32 px-4"
+                class="textarea mt-8 w-full h-32 px-4 bg-base-200"
                 placeholder="Meine Beschreibung"
                 style="resize: none !important;"
                 bind:value={description}
             ></textarea>
             <div class="flex gap-2 mt-2">
-                <button class="btn btn-accent flex-1" onclick={updateDescription}>Speichern</button>
-                <button class="btn btn-outline flex-1" onclick={() => {
-                    isEditingDescription = false;
-                    description = currentUser.description || "";
-                }}>Abbrechen</button>
+                <button
+                    class="btn btn-accent flex-1"
+                    onclick={updateDescription}>Speichern</button
+                >
+                <button
+                    class="btn btn-outline flex-1"
+                    onclick={() => {
+                        isEditingDescription = false;
+                        description = currentUser.description || "";
+                    }}>Abbrechen</button
+                >
             </div>
         {:else}
             <textarea
-                class="textarea mt-8 w-full h-32 px-4"
+                class="textarea mt-8 w-full h-32 px-4 bg-base-200"
                 placeholder="Meine Beschreibung"
                 readonly="true"
                 style="resize: none !important;"
                 value={description}
             ></textarea>
-            <button class="btn btn-accent w-full mt-2" onclick={() => isEditingDescription = true}>
+            <button
+                class="btn btn-accent w-full mt-2"
+                onclick={() => (isEditingDescription = true)}
+            >
                 Beschreibung bearbeiten
             </button>
         {/if}
@@ -153,9 +174,10 @@
 
     {#if myOffers.length > 0}
         <p class="pl-1 mt-5 text-2xl w-full border-b border-base-400">
-            {myOffers.length} {myOffers.length === 1 ? 'Anzeige' : 'Anzeigen'}
+            {myOffers.length}
+            {myOffers.length === 1 ? "Anzeige" : "Anzeigen"}
         </p>
-        <div class="mx-2 mt-5">
+        <div class="mx-2 mt-5 flex flex-col gap-4">
             {#each myOffers as item, index}
                 <CategoryCard
                     imageData={item.img}
@@ -182,4 +204,4 @@
     </div>
 {/if}
 
-<InvalidImageModal/>
+<InvalidImageModal />

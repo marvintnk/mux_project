@@ -26,7 +26,7 @@
     }
 </script>
 
-<a class="shadow-sm card-layout rounded-box w-full p-2" href={href}>
+<a class="shadow-sm card-layout rounded-box w-full p-2 bg-base-200" href={href}>
     <div class="image-wrapper flex-shrink-0 mx-auto mb-2">
         {#if imageData === null}
             <div class="avatar avatar-placeholder">
@@ -42,8 +42,8 @@
     <div class="text-content flex-grow flex flex-col justify-between min-w-0">
         <div>
             <div class="flex justify-between items-start">
-                <p class="text-xs text-gray-500 mr-2 flex-grow truncate">{location}</p>
-                <p class="text-xs text-gray-500 flex-shrink-0">{TimeFormat.parseIntoFormat("vor", date)}</p>
+                <p class="text-xs text-gray-400 mr-2 flex-grow truncate">{location}</p>
+                <p class="text-xs text-gray-400 flex-shrink-0">{TimeFormat.parseIntoFormat("vor", date)}</p>
             </div>
 
             <p class="font-bold mt-1 text-base md:text-lg truncate">{title}</p>
@@ -51,7 +51,7 @@
 
         <div class="flex justify-end mt-2">
             {#if isFavoriteItem}
-                <button class="shadow-sm rounded-box flex items-center px-4 py-2 bg-base-200 hover:bg-base-300 transition-colors duration-200 flex-shrink-0" onclick={handleRemoveClick}>
+                <button class="shadow-sm rounded-box flex items-center px-4 py-2 hover:bg-primary transition-colors duration-200 flex-shrink-0 bg-base-100" onclick={handleRemoveClick}>
                     <p class="text-sm mr-1">Entfernen</p>
                     <HeartBreakIcon size={20} classes="my-auto" fill="#eb4034" stroke="#eb4034"/>
                 </button>

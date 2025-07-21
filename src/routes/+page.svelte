@@ -94,13 +94,13 @@
 </div> -->
 
 <div class="mt-6"></div>
-<GreenGradientText text="Swapbox" additionalClasses="text-2xl font-bold text-center"/>
+<GreenGradientText text="Swapbox" additionalClasses="text-4xl font-bold text-center"/>
 
 <SearchBar />
 
 
-<p class="text-xl mt-5 ml-2 font-bold">Kategorien</p>
-<div class="flex gap-4 mx-2 mt-2" style="overflow-y: scroll !important;">
+<p class="text-xl mt-5 ml-3 font-bold">Kategorien</p>
+<div class="flex gap-4 ml-3 mt-2" style="overflow-y: scroll !important;">
     {#each CATEGORIES as item}
         <CategoryItem
             href={item.href}
@@ -110,9 +110,9 @@
     {/each}
 </div>
 
-<p class="text-xl mt-5 ml-2 font-bold">Nächste Events</p>
+<p class="text-xl mt-5 ml-3 font-bold">Nächste Events</p>
 
-<div class="mx-2 flex flex-col gap-4">
+<div class="mx-2 flex flex-col mt-2 gap-2">
     {#each events as event}
         <CategoryCard
             imageData={getFirstImage(event)}
@@ -125,9 +125,9 @@
     {/each}
 </div>
 
-<p class="text-xl mt-5 ml-2 font-bold">Neuste Anzeigen</p>
+<p class="text-xl mt-5 ml-3 font-bold">Neuste Anzeigen</p>
 
-<div class="mx-2 flex flex-col gap-4">
+<div class="mx-2 flex flex-col mt-2 gap-2">
     {#each visibleOffers as offer}
         <CategoryCard
             imageData={getFirstImage(offer)}

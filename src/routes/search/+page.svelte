@@ -177,7 +177,7 @@
 <SearchBar bind:this={searchBarComponent} mode="search" on:search={handleSearch} />
 
 <!-- Filter Dropdown -->
-<details class="dropdown mx-2 mb-4" bind:open={dropdownOpen}>
+<details class="dropdown mx-2 mb-4 mt-2 " bind:open={dropdownOpen}>
   <summary class="btn">
     Kategorie: {selectedCategory}
   </summary>
@@ -203,20 +203,20 @@
 
 <!-- Suchergebnis-Info -->
 {#if searchQuery.trim() !== ''}
-  <div class="mx-2 mb-2 text-sm text-gray-600">
+  <div class="mx-4 mb-2 text-sm text-gray-300">
     Suchergebnisse für: "{searchQuery}" ({filteredOffers.length} gefunden)
   </div>
 {/if}
 
 <!-- Angebotsliste -->
-<div class="mx-2 flex flex-col gap-4">
+<div class="mx-2 flex flex-col gap-2">
     {#each visibleOffers as offer}
         <CategoryCard
             imageData={getFirstImage(offer)}
             likes={0}
             location={offer.location}
             title={offer.title}
-            date={formatDate(offer.created_at)}
+            date={new Date(offer.created_at).getTime()}
             href={`/offer/${offer.id}`}
             hasLiked={false}
         />

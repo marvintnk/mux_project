@@ -210,7 +210,7 @@
 </div>
 
 <div
-    class="rounded-box p-4 mx-4 shadow-sm mt-10 flex"
+    class="rounded-box p-4 mx-4 shadow-sm mt-10 flex bg-base-200"
     onclick={() => startVideoStream()}
 >
     <Camera class="my-auto" />
@@ -233,7 +233,7 @@
 {/if}
 
 <div
-    class="rounded-box p-4 mx-4 shadow-sm mt-2 flex"
+    class="rounded-box p-4 mx-4 shadow-sm mt-2 flex bg-base-200"
     onclick={() => document.getElementById("fileInput").click()}
 >
     <input
@@ -297,7 +297,7 @@
 </div>
 
 <div class="mx-4 mt-4">
-    <div class="flex justify-center input w-full">
+    <div class="flex justify-center input w-full bg-base-200">
         <input
             id="title"
             type="text"
@@ -311,7 +311,7 @@
         <p id="title_counter" style="margin-left: auto !important;">0/80</p>
     </div>
 
-    <select class="select mt-2 w-full" bind:value={formData.category}>
+    <select class="select mt-2 w-full bg-base-200" bind:value={formData.category}>
         <option disabled value="">Kategorie auswählen</option>
         {#each CATEGORIES as item}
             <option value={item.name}>{item.name}</option>
@@ -319,13 +319,13 @@
     </select>
 
     <textarea
-        class="textarea mt-8 w-full h-32 px-4"
+        class="textarea mt-8 w-full h-32 px-4 bg-base-200"
         placeholder="Beschreibung"
         bind:value={formData.description}
         style="resize: none !important;"
     ></textarea>
 
-    <select class="select mt-8 w-full" bind:value={formData.location}>
+    <select class="select mt-8 w-full bg-base-200" bind:value={formData.location}>
         <option disabled value="">Ort auswählen</option>
         {#each LOCATIONS as item}
             <option value={item}>{item}</option>

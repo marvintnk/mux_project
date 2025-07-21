@@ -50,9 +50,9 @@
     export { setSearchValue };
 </script>
 
-<div class="mx-4">
+<div class="mx-5">
     <form class="flex mt-5" on:submit={handleSubmit}>
-        <div class="input w-full flex items-center">
+        <div class="input w-full flex items-center bg-base-200">
             <input 
                 bind:this={inputElement}
                 bind:value={searchValue}

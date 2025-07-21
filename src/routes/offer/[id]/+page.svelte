@@ -43,6 +43,25 @@
         return cat ? cat.icon : null;
     }
 
+    function getInitials(name) {
+        if (!name) return "??";
+
+        const words = name.trim().split(/\s+/); // nach Leerzeichen splitten
+
+        if (words.length >= 2) {
+            // erster Buchstabe der ersten beiden Wörter
+            return (words[0][0] + words[1][0]).toUpperCase();
+        } else if (words[0].length >= 2) {
+            // erstes Wort mindestens 2 Buchstaben
+            return words[0].substring(0, 2).toUpperCase();
+        } else if (words[0].length === 1) {
+            // erstes Wort nur 1 Buchstabe
+            return (words[0] + words[0]).toUpperCase();
+        }
+
+        return "??";
+    }
+
     function goBack() {
         if (browser) {
             window.history.go(-(clickedToggleImageCount + 1));
@@ -179,14 +198,13 @@
         </div>
     {/if}
 
-    <div class="mx-2 mt-5">
-        <p class="text-2xl font-bold">{offer.title}</p>
+        <p class="text-2xl font-bold mx-3 mt-4">{offer.title}</p>
         <!-- Kategorie-Zeile -->
         <div class="flex mt-2">
             <svg
                 width="1.2em"
                 height="1.2em"
-                class="mt-0.5"
+                class="mt-0.5 ml-3"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -202,15 +220,15 @@
         </div>
 
         <!-- Ort-Zeile -->
-        <div class="flex mt-2">
+        <div class="flex mt-2 ml-3">
             <MapPin size="1.2em" class="mt-0.5" />
             <p class="text-md ml-1">{offer.location}</p>
         </div>
 
         <!-- Datum- und Like-Zeile -->
-        <div class="flex mt-2">
+        <div class="flex mt-3">
             <div class="flex">
-                <CalendarDays size="1.2em" class="mt-0.5" />
+                <CalendarDays size="1.2em" class="mt-0.5 ml-3" />
                 <p class="text-md ml-1">{formatDate(offer.created_at)}</p>
             </div>
             <div class="flex" style="margin-left: auto !important;">
@@ -221,51 +239,50 @@
                         <Heart size={24} />
                     {/if}
                 </button>
-                <p class="text-md ml-1">{favoritesCount}</p>
+                <p class="text-md ml-1 mr-2">{favoritesCount}</p>
             </div>
         </div>
 
-        <textarea
-            class="textarea mt-4 w-full h-32 px-4"
-            placeholder="Es wurde keine Beschreibung angegeben."
-            readonly={true}
-            style="resize: none !important;">{offer.description || ""}</textarea
-        >
+        
+        <div class="mx-2 mt-4">
+            <textarea
+                class="textarea w-full h-32 bg-base-200 px-4"
+                placeholder="Es wurde keine Beschreibung angegeben."
+                readonly
+                style="resize: none !important;"
+                value={offer.description || ""}
+            ></textarea>
+        </div>
+        
+        <p class="text-2xl font-bold mt-4 mx-3">Angeboten von</p>
 
-        <p class="mt-4 text-2xl font-bold">Angeboten von</p>
-        <a class="flex" href="/profile/{offer.user_id}">
-            {#if offer.users?.profile_picture}
-                <div class="avatar mt-1">
-                    <div class="w-8 rounded-full ring-2">
-                        <img
-                            src={offer.users.profile_picture}
-                            alt="Profilbild"
-                        />
-                    </div>
-                </div>
-            {:else}
-                <div class="avatar avatar-placeholder mt-1">
+            <a class="flex mt-2" href="/profile/{offer.user_id}">
+                <div class="avatar avatar-placeholder ml-2 mt-2">
                     <div
                         class="bg-neutral text-neutral-content w-8 rounded-full"
                     >
-                        <span class="text-xl"
-                            >{offer.users?.name?.[0] || "?"}</span
-                        >
+                        <span class="text-s font-bold">
+                            {getInitials(offer.users?.name)}
+                        </span>
                     </div>
                 </div>
-            {/if}
-            <p class="ml-2 my-auto text-lg">
-                {offer.users?.name || "Unbekannt"}
-            </p>
-        </a>
-        <Rating
-            rating={offer.users?.rating || 0}
-            editable={false}
-            ratingSizeClass="rating-sm"
-        />
-    </div>
 
-    <div class="mt-4 flex mx-auto w-2/3 pb-4">
+
+                <p class="ml-2 my-auto text-lg">
+                    {offer.users?.name || "Unbekannt"}
+                </p>
+            </a>
+
+            <div class="ml-3 mt-2">
+                <Rating
+                    rating={offer.users?.rating || 0}
+                    editable={false}
+                    ratingSizeClass="rating-sm"
+                />
+
+        </div>
+
+    <div class="mt-4 flex mx-auto w-2/3 pb-4 ">
         {#if offer.user_id !== user_id}
             <button class="flex btn w-full" onclick={startChat}>
                 <MessageSquareMore size={20} class="mt-1 mr-1" />

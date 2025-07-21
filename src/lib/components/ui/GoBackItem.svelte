@@ -14,7 +14,7 @@
 <div class="flex justify-start">
     {#if showLogoutButton}
         <button 
-            class="shadow-sm rounded-box m-2 p-1 hover:bg-base-200 transition-colors" 
+            class="shadow-sm rounded-box m-2 p-1 bg-base-200 hover:bg-accent transition-colors" 
             onclick={handleLogout}
             title="Abmelden"
         >
@@ -22,7 +22,7 @@
         </button>
     {/if}
 
-    <a class="shadow-sm rounded-box m-2 p-1 hover:bg-base-200 transition-colors" href={href} style="margin-left: auto !important;">
+    <a class="shadow-sm rounded-box m-2 p-1 bg-base-200 hover:bg-accent transition-colors" href={href} style="margin-left: auto !important;">
         <X size={24} />
     </a>
 </div>

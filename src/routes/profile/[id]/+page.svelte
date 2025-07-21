@@ -135,7 +135,7 @@
         <p class="pl-1 mt-5 text-2xl w-full border-b border-base-400">
             {myOffers.length} {myOffers.length === 1 ? 'Anzeige' : 'Anzeigen'}
         </p>
-        <div class="mx-2 mt-5">
+        <div class="mx-2 mt-5 flex flex-col gap-4">
             {#each myOffers as item, index}
                 <CategoryCard
                     imageData={item.img}

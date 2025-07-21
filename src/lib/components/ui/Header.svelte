@@ -14,7 +14,7 @@
     export let hideSearchBar = false;
 </script>
 
-<div class="navbar bg-base-100 shadow-sm">
+<div class="navbar shadow-sm">
     <div class="flex w-full">
         <div class="flex-1 justify-start">
             <a class="btn btn-ghost text-xl">Swapbox</a>

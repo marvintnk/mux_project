@@ -42,7 +42,12 @@
     }
 </script>
 
-<p class="mt-2 text-2xl text-center mb-4">Chats</p>
+
+<div class="flex">
+    <p class="text-2xl font-bold mx-auto mt-12 mb-10">Chats</p>
+</div>
+
+
 
 {#if loading}
     <div class="flex justify-center items-center py-8">
@@ -61,14 +66,14 @@
             <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Keine Chats vorhanden</h3>
-            <p class="text-gray-500 mb-4">Du hast noch keine Unterhaltungen gestartet.</p>
+            <h3 class="text-lg font-medium text-gray-400 mb-2">Keine Chats vorhanden</h3>
+            <p class="text-gray-400 mb-4">Du hast noch keine Unterhaltungen gestartet.</p>
             <p class="text-sm text-gray-400">Starte eine neue Unterhaltung, indem du auf ein Angebot antwortest.</p>
         </div>
     </div>
 {:else}
     {#each chats as chat}
-        <a class="rounded-box shadow-sm chat-card-layout mx-2 mt-2 hover:shadow-md transition-shadow p-2" href="/chat/{chat.id}">
+        <a class="rounded-box shadow-sm chat-card-layout mx-2 mt-2 hover:shadow-md transition-shadow p-2 bg-base-200" href="/chat/{chat.id}">
             <div class="image-wrapper flex-shrink-0 mx-auto mb-2">
                 {#if chat.image === null}
                     <div class="skeleton min-h-16 min-w-16 rounded-box"></div>
@@ -85,8 +90,8 @@
 
             <div class="text-content flex-grow flex flex-col min-w-0">
                 <div class="flex justify-between items-start">
-                    <p class="text-base font-semibold text-gray-800 flex-grow truncate mr-2">{getDisplayName(chat)}</p>
-                    <p class="text-xs text-gray-500 flex-shrink-0">{formatDate(chat.created_at)}</p>
+                    <p class="text-base font-semibold text-gray-400 flex-grow truncate mr-2">{getDisplayName(chat)}</p>
+                    <p class="text-xs text-gray-400 flex-shrink-0">{formatDate(chat.created_at)}</p>
                 </div>
 
                 <div class="flex items-center mt-1">
@@ -98,7 +103,7 @@
 
                 {#if chat.lastMessage}
                     <div class="flex mt-1">
-                        <p class="text-sm text-gray-500 truncate flex-grow">{chat.lastMessage.content}</p>
+                        <p class="text-sm text-gray-400 truncate flex-grow">{chat.lastMessage.content}</p>
                     </div>
                 {/if}
             </div>
