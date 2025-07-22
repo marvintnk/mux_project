@@ -15,9 +15,22 @@
     let error = $state(null);
 
     function getFirstImage(offer) {
-        return offer.offer_images && offer.offer_images.length > 0
-            ? offer.offer_images[0].public_url
-            : null;
+        if (!offer.offer_images || offer.offer_images.length === 0) {
+            return null;
+        }
+        
+        // Hilfsfunktion für die Sortierung (gleiche wie in der anderen Klasse)
+        function getImageOrderNumber(name) {
+            const match = name.match(/(\d+)(?=\.\w+$)/);
+            return match ? parseInt(match[1], 10) : 0;
+        }
+        
+        // Bilder sortieren und das erste zurückgeben
+        const sortedImages = [...offer.offer_images].sort(  
+            (a, b) => getImageOrderNumber(a.image_url) - getImageOrderNumber(b.image_url)
+        );
+        
+        return sortedImages[0].public_url;
     }
 
     // Favoriten beim Laden der Komponente abrufen

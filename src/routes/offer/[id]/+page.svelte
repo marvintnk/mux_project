@@ -167,25 +167,24 @@
 
 
     {#if sortedImages.length > 0}
-        <div class="carousel w-full">
+    <div class="carousel w-full">
+        {#each sortedImages as image, i}
+            <div id="item{i + 1}" class="carousel-item w-full">
+                <img
+                    src={image.public_url}
+                    class="w-full h-64 object-cover"
+                    alt="Angebotsbild {i + 1}"
+                />
+            </div>
+        {/each}
+    </div>
 
-            {#each sortedImages as image, i}
-                <div id="item{i + 1}" class="carousel-item w-full">
-                    <img
-                        src={image.public_url}
-                        class="w-full"
-                        alt="Angebotsbild {i + 1}"
-                    />
-                </div>
-            {/each}
-        </div>
-
-        <div class="flex w-full justify-center gap-2 pt-2">
-            {#each sortedImages as image, i}
-                <a href="#item{i + 1}" onclick={() => clickedToggleImageCount += 1} class="btn btn-xs w-8 h-8">{i + 1}</a>
-            {/each}
-        </div>
-    {/if}
+    <div class="flex w-full justify-center gap-2 pt-2">
+        {#each sortedImages as image, i}
+            <a href="#item{i + 1}" onclick={() => clickedToggleImageCount += 1} class="btn btn-xs w-8 h-8">{i + 1}</a>
+        {/each}
+    </div>
+{/if}
 
         <p class="text-2xl font-bold mx-3 mt-4">{offer.title}</p>
         <!-- Kategorie-Zeile -->
