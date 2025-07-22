@@ -12,6 +12,17 @@
     let invalidUsername = $state(false);
     let registrationError = $state("");
 
+    // Hilfsfunktion für Passwort-Hashing
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hash));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+
     const check = () => {
         const password = document.getElementById("pw").value;
         const passwordConfirmation = document.getElementById("pwr").value;
@@ -36,6 +47,7 @@
             invalidPassword = false;
             document.getElementById("ipass").innerHTML = "";
         }
+
 
         // Password confirmation validation
         if (passwordConfirmation.length > 0) {
@@ -107,9 +119,8 @@
                 );
             }
 
-            // Password hashen (falls du eine Hash-Funktion verwendest)
-            // const hashedPassword = await hashPassword(password); // Beispiel
-            // Oder direkt das Passwort verwenden, falls Backend das Hashing übernimmt
+            // Passwort hashen vor dem Senden
+            const hashedPassword = await hashPassword(password);
 
             const response = await fetch("/api/v1/user/register", {
                 method: "POST",
@@ -118,8 +129,8 @@
                 },
                 body: JSON.stringify({
                     email: email,
-                    password_hash: password, // oder hashedPassword falls du clientseitig hashst
-                    name: username, // 'name' statt nur username
+                    password_hash: hashedPassword, // Jetzt wird das gehashte Passwort gesendet
+                    name: username,
                     verified: true,
                     role: "student",
                 }),
@@ -146,6 +157,7 @@
             registering = false;
         }
     };
+
 
     const matchesPasswordRequirements = (password) => {
         const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/gm;
