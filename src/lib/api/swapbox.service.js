@@ -44,7 +44,7 @@ class SwapBoxService {
         name: userData.name,
         email: userData.email,
         password_hash: userData.password_hash,
-        verified: userData.verified || false,
+        verified: userData.verified || true,
         location: userData.location || null,
         rating: userData.rating || 0,
         role: userData.role || 'student'
